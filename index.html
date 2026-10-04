@@ -189,7 +189,8 @@ h2{margin:12px 14px 6px}
 .nc .nr{margin-top:6px}
 </style>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
-<style>.lc{margin:0 14px;background:var(--card);border:1px solid var(--xb);border-radius:14px;overflow:hidden}.ev2{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:58px;padding:9px 12px;border:0;border-top:1px solid var(--xb);background:transparent;color:var(--fg);font:inherit;text-align:left}.lc>.ev2:first-child{border-top:0}.dt{width:36px;flex:none;text-align:center;line-height:1.1}.dt b{display:block;font-size:20px}.dt small{display:block;font-size:10px;text-transform:uppercase;color:var(--mut)}.tx{flex:1;min-width:0}.tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx span{display:block;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ev2 em{font-style:normal;font-size:12px;color:var(--mut);white-space:nowrap}.ev2.u em{color:var(--r);font-weight:600}.past .ev2{opacity:.6}
+<style>.dd{display:inline-block;width:7px;height:7px;border-radius:50%;border:2px solid transparent;box-sizing:border-box}.dds{display:flex;justify-content:center;flex-wrap:wrap;gap:3px;margin-top:4px}.cl2 .dt{width:46px}.cl2.off .tx b{text-decoration:line-through;opacity:.6}.cl2.off .tx span{color:var(--r);font-weight:600}
+.lc{margin:0 14px;background:var(--card);border:1px solid var(--xb);border-radius:14px;overflow:hidden}.ev2{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:58px;padding:9px 12px;border:0;border-top:1px solid var(--xb);background:transparent;color:var(--fg);font:inherit;text-align:left}.lc>.ev2:first-child{border-top:0}.dt{width:36px;flex:none;text-align:center;line-height:1.1}.dt b{display:block;font-size:20px}.dt small{display:block;font-size:10px;text-transform:uppercase;color:var(--mut)}.tx{flex:1;min-width:0}.tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx span{display:block;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ev2 em{font-style:normal;font-size:12px;color:var(--mut);white-space:nowrap}.ev2.u em{color:var(--r);font-weight:600}.past .ev2{opacity:.6}
 nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:90px}#v-ext label{display:block;font-size:12px;color:var(--mut);margin-top:8px}#v-ext input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--card);color:var(--fg)}#v-ext textarea{width:100%;height:70px;font-size:11px}</style>
 </head>
 <body>
@@ -776,7 +777,10 @@ const hue=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h};
 const bgc=n=>`hsl(${hue(n)} 55% 42%)`;
 const mins=t=>{const[h,i]=t.split(":").map(Number);return h*60+i};
 const dayCl=d=>CL.filter(c=>c.days.includes(d.getDay())).sort((a,b)=>a.start.localeCompare(b.start));
-const clBtn=(c,s)=>{const x=off(c,s);return `<button class="cl${x?" off":""}"${x?"":` style="border-left-color:${mc(c.name)}"`} data-o="${c.id}|${s}"><time>${c.start}<br>${c.end}</time><div><b>${esc(c.name)}</b><span>${[c.room&&esc(c.room),x&&"Sem aula"+(x.reason?" — "+esc(x.reason):"")].filter(Boolean).join(" • ")}</span></div></button>`};
+const nmOf=d=>{const p=String(d).split(" – ");return p.length>1?p.slice(1).join(" – "):d},cdOf=d=>{const p=String(d).split(" – ");return p.length>1?p[0]:""};
+let szAll=false;
+const clBtn=(c,s)=>{const x=off(c,s),k=mc(c.name),sub=[esc(cdOf(c.name)),c.room&&esc(c.room),x&&"Sem aula"+(x.reason?" — "+esc(x.reason):"")].filter(Boolean).join(" • ");
+ return `<button class="ev2 cl2${x?" off":""}" data-o="${c.id}|${s}"><div class="dt" style="color:${x?"var(--mut)":k}"><b style="font-size:15px">${c.start}</b><small>${c.end}</small></div><div class="tx"><b>${esc(nmOf(c.name))}</b><span>${sub}</span></div></button>`};
 function weekH(t){
  const nd=CL.some(c=>c.days.includes(0))?7:6;
  let a=CL.length?Math.floor(Math.min(...CL.map(c=>mins(c.start)))/60):7,b=CL.length?Math.ceil(Math.max(...CL.map(c=>mins(c.end)))/60):18;
@@ -784,11 +788,11 @@ function weekH(t){
  const PH=Math.max(26,Math.min(48,Math.floor((innerHeight-300)/(b-a)))),H=(b-a)*PH;
  let hx="<div></div>",cols="";
  for(let k=0;k<nd;k++){
-  const d=new Date(wk.getFullYear(),wk.getMonth(),wk.getDate()+k),s=iso(d),hol=SA.some(x=>x.date==s&&x.name=="*");
+  const d=new Date(wk.getFullYear(),wk.getMonth(),wk.getDate()+k),s=iso(d),hol=SA.some(x=>x.date==s&&x.name=="*")||ACAD.fer.some(f=>f[0]==s);
   hx+=`<div class="${s==t?"t":""}">${cap(d.getDay())}<br>${p2(d.getDate())}</div>`;
   cols+=`<div class="col${hol?" hol":""}" style="height:${H}px">`+dayCl(d).map(c=>{
    const x=off(c,s),top=(mins(c.start)-a*60)/60*PH,hh=Math.max(22,(mins(c.end)-mins(c.start))/60*PH-2);
-   return `<button class="bk${x?" off":""}" data-o="${c.id}|${s}" style="top:${top}px;height:${hh}px;${x?"":"background:"+bgc(c.name)}"><b>${esc(lab(c.name))}</b><small>${c.start}</small></button>`}).join("")+"</div>";
+   return `<button class="bk${x?" off":""}" data-o="${c.id}|${s}" style="top:${top}px;height:${hh}px;${x?"":"background:"+mc(c.name)}"><b>${esc(lab(c.name))}</b><small>${c.start}</small></button>`}).join("")+"</div>";
  }
  let hr="";for(let i=a;i<b;i++)hr+=`<span style="top:${(i-a)*PH+1}px">${p2(i)}h</span>`;
  return `<div class="wg" style="--n:${nd};--ph:${PH}px;margin-top:8px"><div class="wgh">${hx}</div><div class="wgb"><div class="hrs" style="height:${H}px">${hr}</div>${cols}</div></div>`+(CL.length?"":`<p class="sub" style="padding:10px 14px 0">Cadastre suas aulas em "+ Aula" ou importe do SIGAA (botão no fim da página).</p>`);
@@ -797,11 +801,11 @@ function monthH(t){
  const y=hm.getFullYear(),m=hm.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
  let g="";for(let i=0;i<f;i++)g+="<i></i>";
  for(let d=1;d<=n;d++){
-  const dt=new Date(y,m,d),s=iso(dt),l=dayCl(dt),hol=SA.some(x=>x.date==s&&x.name=="*");
-  g+=`<button class="mc${s==t?" t":""}${s==hsel?" s":""}${hol?" hol":""}" data-hd="${s}"><b>${d}</b>`+l.slice(0,3).map(c=>{const x=off(c,s);return `<i class="cc${x?" off":""}" style="${x?"":"background:"+bgc(c.name)}">${esc(lab(c.name))}</i>`}).join("")+(l.length>3?`<em>+${l.length-3}</em>`:"")+`</button>`;
+  const dt=new Date(y,m,d),s=iso(dt),l=dayCl(dt),hol=SA.some(x=>x.date==s&&x.name=="*")||ACAD.fer.some(f=>f[0]==s);
+  g+=`<button class="mc${s==t?" t":""}${s==hsel?" s":""}${hol?" hol":""}" data-hd="${s}"><b>${d}</b>`+(l.length?`<div class="dds">${l.slice(0,6).map(c=>{const x=off(c,s),k=mc(c.name);return `<span class="dd" style="background:${x?"transparent":k};border-color:${k}"></span>`}).join("")}</div>`:"")+`</button>`;
  }
  let h=`<div class="wg" style="margin-top:8px"><div class="mw">${["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(x=>`<span>${x}</span>`).join("")}</div><div class="mg">${g}</div></div>`;
- if(hsel){const d=pd(hsel),l=dayCl(d);h+=`<div class="dh">${WD[d.getDay()].toUpperCase()} ${sh(d)}</div>`+(l.length?l.map(c=>clBtn(c,hsel)).join(""):`<p class="sub" style="padding:0 14px;margin:0">Sem aulas neste dia.</p>`)}
+ if(hsel){const d=pd(hsel),l=dayCl(d);h+=`<div class="dh">${WD[d.getDay()].toUpperCase()} ${sh(d)}</div>`+(l.length?`<div class="lc">${l.map(c=>clBtn(c,hsel)).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Sem aulas neste dia.</p>`)}
  return h;
 }
 function renderH(){
@@ -818,18 +822,19 @@ function renderH(){
    for(let k=0;k<7;k++){
     const d=new Date(wk.getFullYear(),wk.getMonth(),wk.getDate()+k),s=iso(d),l=dayCl(d);
     if(!l.length)continue;any=true;
-    h+=`<div class="dh${s==t?" t":""}">${WD[d.getDay()].toUpperCase()} ${sh(d)}${s==t?" • HOJE":""}</div>`+l.map(c=>clBtn(c,s)).join("");
+    h+=`<div class="dh${s==t?" t":""}">${WD[d.getDay()].toUpperCase()} ${sh(d)}${s==t?" • HOJE":""}</div>`+`<div class="lc">${l.map(c=>clBtn(c,s)).join("")}</div>`;
    }
    if(!any)h+=`<p class="sub" style="padding:14px">${CL.length?"Sem aulas nesta semana.":'Cadastre suas aulas em "+ Aula".'}</p>`;
   }
  }
- const up=SA.filter(x=>x.date>=t).sort((a,b)=>a.date.localeCompare(b.date));
- h+=`<h2>DIAS SEM AULA</h2><div class="list">`+(up.length?up.map(x=>`<button class="ev u" data-z="${x.id}"><div><b>${x.name=="*"?"Todas as matérias":esc(x.name)}</b><span>${fmt(x.date)}${x.reason?" • "+esc(x.reason):""}</span></div><em>${rel(x.date)}</em></button>`).join(""):`<p class="sub" style="margin:0">Nenhum cadastrado.</p>`)+`</div><div class="row" style="padding:8px 14px 0"><button class="s" id="za">+ Sem aula</button></div>`;
- h+=`<h2>MINHAS AULAS</h2><div class="list">`+(CL.length?CL.map(c=>`<button class="ev" data-c="${c.id}"><div><b>${esc(c.name)}</b><span>${dnames(c.days)} • ${c.start}–${c.end}${c.room?" • "+esc(c.room):""}</span></div></button>`).join(""):`<p class="sub" style="margin:0">Nenhuma aula cadastrada.</p>`)+`</div><div class="row" style="padding:10px 14px 0"><button class="s" id="sg">⬇ Importar do SIGAA (turmas do semestre)</button></div>`;
+ const up=SA.filter(x=>x.date>=t).sort((a,b)=>a.date.localeCompare(b.date)),vs=szAll?up:up.slice(0,3);
+ h+=`<h2>DIAS SEM AULA</h2>`+(up.length?`<div class="lc">${vs.map(x=>{const d=pd(x.date);return `<button class="ev2" data-z="${x.id}"><div class="dt" style="color:var(--r)"><small>${WA[d.getDay()]}</small><b>${d.getDate()}</b><small>${MA[d.getMonth()]}</small></div><div class="tx"><b>${esc(x.reason||"Sem aula")}</b><span>${x.name=="*"?"Todas as matérias":esc(nmOf(x.name))}</span></div><em>${rel(x.date)}</em></button>`}).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhum cadastrado.</p>`)+`<div class="row" style="padding:8px 14px 0">${up.length>3?`<button class="s" id="zall">${szAll?"Mostrar menos":"Ver todos ("+up.length+")"}</button>`:""}<button class="s" id="za">+ Sem aula</button></div>`;
+ h+=`<h2>MINHAS AULAS</h2>`+(CL.length?`<div class="lc">${CL.map(c=>`<button class="ev2" data-c="${c.id}"><div style="width:14px;flex:none"><span class="dd" style="background:${mc(c.name)};width:10px;height:10px"></span></div><div class="tx"><b>${esc(nmOf(c.name))}</b><span>${[esc(cdOf(c.name)),dnames(c.days)+" • "+c.start+"–"+c.end,c.room&&esc(c.room)].filter(Boolean).join(" • ")}</span></div></button>`).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhuma aula cadastrada.</p>`)+`<div class="row" style="padding:10px 14px 0"><button class="s" id="sg">⬇ Importar do SIGAA (turmas do semestre)</button></div>`;
  $("v-hor").innerHTML=h;
 }
 $("v-hor").onclick=e=>{
  const q=s=>e.target.closest(s);let b;
+ if(q("#zall")){szAll=!szAll;return renderH()}
  if(q("#sg"))return openSG();
  if(q("#ha"))return openH();
  if(q("#za"))return openZ();
