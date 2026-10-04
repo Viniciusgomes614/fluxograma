@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2b78c2">
+<script src="firebase-config.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -174,11 +175,24 @@ nav button.on{color:var(--fg);font-weight:700}
 <div class="sub" id="ps"></div>
 <div class="sub">Roxo: cursando neste semestre (vem das abas Aulas, Faltas e Notas, ou toque numa matéria). Verde-água: liberadas se você passar em todas as que está cursando. Toque nas cores abaixo para mostrar ou esconder.</div>
 </header>
-<div class="row"><button id="imp">Importar histórico do SIGAA</button><button class="s" id="rst">Restaurar</button></div>
+<div class="row"><button id="imp">Importar histórico do SIGAA</button><button class="s" id="rst">Limpar marcações</button></div>
 <div class="tabs" id="tabs"></div>
 <main id="main"></main>
 </section>
 <nav><div><button data-v="p"><span>📅</span>Provas</button><button data-v="h"><span>🏫</span>Aulas</button><button data-v="a"><span>📋</span>Faltas</button><button data-v="n"><span>📊</span>Notas</button><button data-v="f"><span>🎓</span>Fluxograma</button></div></nav>
+<dialog id="dsy"><div class="m">
+<b>Sincronização entre aparelhos</b>
+<p class="sub" id="syt"></p>
+<div id="syf" hidden>
+<div class="row" style="padding:10px 0 4px"><button id="syg" style="width:100%">Entrar com Google</button></div>
+<p class="sub" style="text-align:center;margin:6px 0 0">ou com e-mail e senha</p>
+<label>E-mail<input id="sye" type="email" autocomplete="email"></label>
+<label>Senha<input id="syp" type="password" autocomplete="current-password"></label>
+<div class="row" style="padding:10px 0 0"><button id="syl">Entrar</button><button class="s" id="syc">Criar conta</button></div>
+</div>
+<div id="syo" hidden><div class="row" style="padding:10px 0 0"><button id="syn">Sincronizar agora</button><button class="s" id="syx">Sair</button></div></div>
+<div class="row" style="padding:6px 0 0"><button class="s" id="syz">Fechar</button></div>
+</div></dialog>
 <dialog id="dsg"><div class="m">
 <b>Importar do SIGAA</b>
 <div id="sg1">
@@ -245,47 +259,198 @@ nav button.on{color:var(--fg);font-weight:700}
 <div class="sub" id="ir"></div></div></dialog>
 
 <script>
-const C=[
-["ARQ011","Desenho Técnico I",1],["ENG439","Introdução à Engenharia Elétrica",1],["FIS121","Física Geral e Experimental I-E",1],["MATA01","Geometria Analítica",1],["MATA02","Cálculo A",1],["QUI029","Química Geral",1],
-["ENGC26","Sistemas Lógicos",2],["ENGC28","Laboratório Integrado I",2],["ENGC29","Metodologia e Expressão do Conhecimento Científico",2],["FIS122","Física Geral e Experimental II-E",2],["MATA045","Processamento de Dados",2],["MATA03","Cálculo B",2],["MATA07","Álgebra Linear A",2],
-["ENGA47","Tecnologia dos Materiais para a Eng. Elétrica",3],["ENGC30","Mecânica dos Sólidos",3],["ENGC32","Análise de Circuitos I",3],["ENGC37","Laboratório Integrado II",3],["FIS123","Física Geral e Experimental III-E",3],["MATA04","Cálculo C",3],["MATA06","Cálculo E",3],
-["ENG370","Fenômenos de Transportes I",4],["ENGC24","Sinais e Sistemas I",4],["ENGC25","Análise de Circuitos II",4],["ENGC38","Laboratório Integrado III",4],["ENGC40","Eletrônica Digital",4],["ENGC41","Dispositivos Eletrônicos",4],["FIS124","Física Geral e Experimental IV-E",4],
-["ENGC33","Sinais e Sistemas II",5],["ENGC34","Eletromagnetismo Aplicado",5],["ENGC39","Laboratório Integrado IV",5],["ENGC50","Sistemas Microprocessados",5],["ENGC51","Eletrônica Analógica",5],["MAT174","Cálculo Numérico I",5],["MAT236","Métodos Estatísticos",5],
-["ENGC27","Sistemas de Comunicações I",6,["ENGC41","MAT236"]],["ENGC31","Termodinâmica",6],["ENGC35","Modelagem e Análise de Sistemas Dinâmicos",6,["ENGC33"]],["ENGC36","Dispositivos de Conversão Eletromecânica I",6],["ENGC44","Sistemas de Potência I",6],["ENGC46","Síntese de Circuitos",6],["ENGC53","Laboratório Integrado V",6,["ENGC39"]],
-["ENG269","Ciências do Ambiente",7],["ENG295","Higiene e Segurança no Trabalho",7],["ENGC42","Sistemas de Controle I",7,["ENGC35"]],["ENGC43","Dispositivos de Conversão Eletromecânica II",7,["ENGC35","ENGC36"]],["ENGC47","Transmissão e Distribuição",7,["ENGC34","ENGC36","ENGC44"]],["ENGC49","Medição de Grandezas",7,["ENGC33","ENGC34","ENGC51"]],["ENGC54","Laboratório Integrado VI",7,["ENGC53"]],
-["ADM012","Administração",8],["ENGC45","Instalações e Equipamentos",8,["ENGC34","ENGC43","ENGC44"]],["ENGC48","Eletrônica de Potência",8,["ENGC43","ENGC51"]],["ENGC52","Geração de Energia Elétrica",8,["ENGC43","ENGC44"]],["ENGC55","Laboratório Integrado VII",8,["ENGC54"]],
-["DIR175","Legislação Social",9],["ECOB40","Introdução à Economia I",9,["MAT236"]],["ENGC57","(nome não consta no PDF)",9,["ENGC27","ENGC34","ENGC42","ENGC43","ENGC47","ENGC51"]],["ENGN95","(nome não consta no PDF)",9,["ENGC27","ENGC42","ENGC45","ENGC47","ENGC48","ENGC52"]],
-["ENGN96","Trabalho de Conclusão de Curso",10,["ENGC57"]]
-];
-const DEF="ARQ011 ENG439 FIS121 MATA01 MATA02 QUI029 ENGC26 ENGC28 ENGC29 FIS122 MATA045 MATA03 MATA07 ENGA47 ENGC32 ENGC37 FIS123 MATA04 MATA06 ENG370 ENGC24 ENGC25 ENGC38 ENGC40 FIS124 ENGC50 MAT174 ENGC31 ENG269 ENG295".split(" ");
-const K="fluxo_done_v1",$=id=>document.getElementById(id);
-const nz=s=>s.replace(/([A-Z]+)0+(?=\d)/g,"$1");
+const tcase=n=>n;
+const RAW=`#1
+ARQ011;Desenho Técnico I;68;
+ENG439;Introdução à Engenharia Elétrica;34;
+FIS121;Física Geral e Experimental I-E;102;
+MATA01;Geometria Analítica;68;
+MATA02;Cálculo A;102;
+QUI029;Química Geral;68;
+#2
+ENGC26;Sistemas Lógicos;34;
+ENGC28;Laboratório Integrado I;34;
+ENGC29;Metodologia e Expressão do Conhecimento Científico;68;
+FIS122;Física Geral e Experimental II-E;102;FIS121 MATA01 MATA02
+MAT045;Processamento de Dados;68;
+MATA03;Cálculo B;102;MATA01 MATA02
+MATA07;Álgebra Linear A;68;MATA01
+#3
+ENGA47;Tecnologia dos Materiais para a Engenharia Elétrica;34;FIS122 QUI029
+ENGC30;Mecânica dos Sólidos;68;FIS121 MATA03
+ENGC32;Análise de Circuitos I;68;MATA03 MATA07
+ENGC37;Laboratório Integrado II;34;ENGC28
+FIS123;Física Geral e Experimental III-E;102;FIS122 MATA03
+MATA04;Cálculo C;102;MATA03
+MATA06;Cálculo E;102;MATA03 MATA07
+#4
+ENG370;Fenômenos de Transportes I;68;FIS122 MATA04
+ENGC24;Sinais e Sistemas I;68;ENGC32 MATA04
+ENGC25;Análise de Circuitos II;68;ENGC32 FIS123 MATA04
+ENGC38;Laboratório Integrado III;68;ENGC37
+ENGC40;Eletrônica Digital;34;ENGC26 MAT045
+ENGC41;Dispositivos Eletrônicos;68;ENGA47 ENGC32
+FIS124;Física Geral e Experimental IV-E;102;FIS123
+#5
+ENGC33;Sinais e Sistemas II;68;ENGC24
+ENGC34;Eletromagnetismo Aplicado;68;FIS124 MATA06
+ENGC39;Laboratório Integrado IV;68;ENGC38
+ENGC50;Sistemas Microprocessados;68;ENGC40
+ENGC51;Eletrônica Analógica;68;ENGC24 ENGC25 ENGC41
+MAT174;Cálculo Numérico I;68;MAT045 MATA04
+MAT236;Métodos Estatísticos;68;MATA03
+#6
+ENGC27;Sistemas de Comunicações I;68;ENGC24 ENGC25 ENGC41 MAT236
+ENGC31;Termodinâmica;68;FIS122 MATA04
+ENGC35;Modelagem e Análise de Sistemas Dinâmicos;68;ENGC33
+ENGC36;Dispositivos de Conversão Eletromecânica I;68;ENGC25 FIS123
+ENGC44;Sistemas de Potência I;68;ENGC25
+ENGC46;Síntese de Circuitos;34;ENGC24 ENGC25
+ENGC53;Laboratório Integrado V;68;ENGC39
+#7
+ENG269;Ciências do Ambiente;68;
+ENG295;Higiene e Segurança no Trabalho;68;FIS122 QUI029
+ENGC42;Sistemas de Controle I;68;ENGC35
+ENGC43;Dispositivos de Conversão Eletromecânica II;68;ENGC31 ENGC35 ENGC36
+ENGC47;Transmissão e Distribuição de Energia Elétrica;68;ENGC34 ENGC36 ENGC44
+ENGC49;Medição de Grandezas Físicas;68;ENGC25 ENGC33 ENGC34 ENGC51
+ENGC54;Laboratório Integrado VI;68;ENGC53
+#8
+ADM012;Administração;68;
+ENGC45;Instalações e Equipamentos Elétricos I;68;ENGC34 ENGC43 ENGC44
+ENGC48;Eletrônica de Potência;68;ENGC43 ENGC51
+ENGC52;Geração de Energia Elétrica;68;ENGC43 ENGC44
+ENGC55;Laboratório Integrado VII;34;ENGC54
+OPT1;Optativa 1 (68h);68;
+#9
+DIR175;Legislação Social;68;
+ECO151;Economia e Finanças;68;MAT236
+ENGC56;Trabalho Final de Graduação;136;ENGC27 ENGC42 ENGC45 ENGC47 ENGC48 ENGC50 ENGC52 MAT174
+ENGC57;Estágio Curricular em Engenharia Elétrica;204;ENGC27 ENGC34 ENGC42 ENGC43 ENGC47 ENGC50 ENGC51
+OPT2;Optativa 2 (68h);68;
+#10
+OPT3;Optativa 3 (68h);68;
+OPT4;Optativa 4 (68h);68;
+OPT5;Optativa 5 (68h);68;
+#11
+ENG515;Controle de Processos;34;ENGC42
+ENG560;Controle Adaptativo;68;ENGC42
+ENG565;Controle Multivariável;68;ENGC42
+ENG570;Instrumentação Eletrônica;68;ENGC46 ENGC50 ENGC51
+ENG573;Processos Estocásticos;68;ENGC24 ENGC25 MAT236
+ENG574;Otimização;68;MAT174 MATA07
+ENG576;Projeto de Circuitos Integrados;68;ENGC51
+ENG577;Processamento Digital de Sinais;68;ENGC33 ENGC50
+ENG656;Controle de Sistemas a Eventos Discretos;68;ENGC42
+ENG658;Microeletrônica em Radiofrequência;68;ENGC51
+ENG730;Tópicos Especiais em Engenharia Elétrica I;68;ENGC25
+ENG735;Tópicos Especiais em Engenharia Elétrica II;68;ENGC25
+ENG740;Tópicos Especiais em Engenharia Elétrica III;68;ENGC25
+ENGA48;Sistemas de Comunicação sem Fio;68;ENGC27 ENGC34
+ENGA70;Modelagem e Identificação de Sistemas Dinâmicos;68;ENGC33
+ENGA71;Análise e Projeto de Sistemas de Controle;68;ENGC42
+ENGA72;Controle Robusto;68;ENGC42
+ENGA73;Sistemas Robóticos;68;ENGC42 ENGC43
+ENGA74;Inteligência Computacional;68;MAT045 MATA07
+ENGA76;Acionamento de Máquinas Elétricas;68;ENGC43
+ENGA77;Instrumentação Industrial;68;ENGC46 ENGC50 ENGC51
+ENGA78;Síntese de Circuitos Digitais;68;ENGC50
+ENGA79;Nanoengenharia: Processos e Caracterizações;68;ENGC25
+ENGA80;Análise de Sistemas de Energia Elétrica;68;ENGC44
+ENGA81;Dinâmica de Sistemas de Energia Elétrica;68;ENGC44
+ENGA82;Transitórios Eletromagnéticos em Sistemas de Potência;68;ENGC44
+ENGA83;Processamento Estatístico de Sinais;68;ENGC27
+ENGA84;Processadores Digitais de Sinais;68;ENGC50
+ENGA85;Tópicos Especiais em Engenharia Elétrica IV;68;ENGC25
+ENGA86;Tópicos Especiais em Engenharia Elétrica;68;ENGC25 ENGC40
+ENGC58;Eletrônica para Comunicações;68;ENGC34 ENGC42 ENGC46 ENGC51
+ENGC59;Instrumentação Eletrônica;68;ENGC46 ENGC50 ENGC51
+ENGC60;Circuitos e Dispositivos de Microondas;68;ENGC34 ENGC46 ENGC51
+ENGC61;Sistemas de Comunicações II;68;ENGC27
+ENGC62;Antenas e Propagação;68;ENGC27 ENGC34
+ENGC63;Processamento Digital de Sinais;68;ENGC33 ENGC50
+ENGC64;Sistemas de Controle II;68;ENGC35
+ENGC65;Sistemas de Controle III;68;ENGC42
+ENGC66;Introdução ao Controle de Processos Industriais;68;ENGC42
+ENGC67;Controle de Sistemas a Eventos Discretos;68;ENGC42
+ENGC68;Instalações e Equipamentos Elétricos II;68;ENGC45
+ENGC69;Tópicos em Transm. e Geração de Energia Elétrica;68;ENGC47 ENGC52
+ENGC70;Proteção de Sistemas Elétricos;68;ENGC44 ENGC50
+ENGC71;Sistemas de Potência II;68;ENGC47
+ENGC72;Sistemas de Potência III;68;ENGC47
+ENGC73;Engenharia Econômica;34;ECO151
+ENGC74;Acionamentos Elétricos;68;ENGC43 ENGC48
+ENGC75;Introdução à Robótica;68;ENGC42 ENGC50
+ENGC76;Qualidade da Energia;34;ENGC47
+ENGC77;Eficiência Energética;34;ENGC45 ENGC47
+ENGC78;Processos de Microeletrônica;68;ENGC51
+ENGC79;Projeto de Circuitos Integrados;68;ENGC51
+ENGD33;Programação em Tempo Real para Sistemas Embarcados;68;ENGC50
+ENGF99;Instrumentação e Automação Industrial I;68;ENGC49
+ENGG01;Instrumentação e Automação Industrial II;68;ENGC49
+ENGG02;Instrumentação e Automação Industrial III;68;ENGC49
+ENGG55;Redes Industriais;68;ENGC27
+ENGG56;Projeto de Circuitos Integrados Digitais;68;ENGC50
+ENGG58;Interface Homem-Máquina;68;ENGC50
+ENGK27;Tópicos Especiais em Sistemas de Energia Elétrica I;68;ENGC44
+ENGK28;Tópicos Especiais em Sistemas de Energia Elétrica II;68;ENGC44
+ENGK29;Tópicos Especiais em Sistemas de Energia Elétrica III;68;ENGC44
+ENGK30;Tópicos Especiais em Sistemas de Energia Elétrica IV;68;ENGC44
+ENGK31;Tópicos Especiais em Sistemas de Energia Elétrica V;68;ENGC44
+ENGK32;Tópicos Especiais em Sistemas de Comunicações I;68;ENGC27
+ENGK33;Tópicos Especiais em Sistemas de Comunicações II;68;ENGC27
+ENGK34;Tópicos Especiais em Sistemas de Comunicações III;68;ENGC27
+ENGK35;Tópicos Especiais em Sistemas de Comunicações IV;68;ENGC27
+ENGK36;Tópicos Especiais em Sistemas de Comunicações V;68;ENGC27
+ENGK37;Tópicos Especiais em Sistemas de Controle e Automação I;68;ENGC35
+ENGK38;Tópicos Especiais em Sistemas de Controle e Automação II;68;ENGC35
+ENGK39;Tópicos Especiais em Sistemas de Controle e Automação III;68;ENGC35
+ENGK40;Tópicos Especiais em Sistemas de Controle e Automação IV;68;ENGC35
+ENGK41;Tópicos Especiais em Sistemas de Controle e Automação V;68;ENGC35
+ENGK42;Tópicos Especiais em Sistemas Eletrônicos I;68;ENGC40 ENGC51
+ENGK43;Tópicos Especiais em Sistemas Eletrônicos II;68;ENGC40 ENGC51
+ENGK44;Tópicos Especiais em Sistemas Eletrônicos III;68;ENGC40 ENGC51
+ENGK45;Tópicos Especiais em Sistemas Eletrônicos IV;68;ENGC40 ENGC51
+ENGK46;Tópicos Especiais em Sistemas Eletrônicos V;68;ENGC40 ENGC51
+ENGL74;Circuitos Planares em Radiofrequência;68;ENGC25
+ENGL75;Engenharia de Planejamento de Redes e Sistemas;68;
+ENGL76;Comunicações Ópticas: Dispositivos e Sistemas;68;
+ENGL77;Eletromagnetismo Computacional;68;ENGC34
+ENGM92;Introdução às Práticas de Automação Industrial;68;ENGC33
+LETE46;Libras - Língua Brasileira de Sinais;34;`;
+const C=[];let SEM=0;
+RAW.trim().split("\n").forEach(l=>{if(l[0]=="#"){SEM=+l.slice(1);return}const[a,b,c,d]=l.split(";");C.push([a,b,SEM,d?d.split(" "):[],+c])});
+const DEF=[];
+const K="fluxo_done_v2",$=id=>document.getElementById(id);
+const AL={ECOB40:"ECO151",ENGN95:"ENGC56",MATA45:"MAT45"};
+const nz=s=>{s=s.replace(/([A-Z]+)0+(?=\d)/g,"$1");return AL[s]||s};
 const by=Object.fromEntries(C.map(c=>[c[0],c]));
 let done=new Set(DEF),flt="all";
 try{const s=localStorage.getItem(K);if(s)done=new Set(JSON.parse(s))}catch(e){}
 const save=()=>{try{localStorage.setItem(K,JSON.stringify([...done]))}catch(e){}};
 const miss=c=>(c[3]||[]).filter(p=>!done.has(p));
 const KC="fluxo_cur_v1",KV="fluxo_vis_v1";
-let CM={},VIS={d:1,u:1,n:1,a:1,b:1},CURS=new Set();
+let CM={},VIS={d:1,u:1,n:1,a:1,b:1,o:0},CURS=new Set();
 try{CM=JSON.parse(localStorage.getItem(KC)||"{}")}catch(e){}
 try{VIS={...VIS,...JSON.parse(localStorage.getItem(KV)||"{}")}}catch(e){}
 const saveCM=()=>{try{localStorage.setItem(KC,JSON.stringify(CM))}catch(e){}};
 const autoCur=()=>{const s=new Set();[...AB,...NT,...CL].forEach(x=>{const m=String(x.name).match(/^[A-Z]{3,4}\d{2,3}/),c=m&&C.find(k=>nz(k[0])==nz(m[0]));if(c)s.add(c[0])});return s};
 const curs=()=>{const a=autoCur(),s=new Set();C.forEach(c=>{const m=CM[c[0]];if(!done.has(c[0])&&(m===1||(m!==0&&a.has(c[0]))))s.add(c[0])});return s};
 const st=c=>{if(done.has(c[0]))return"d";if(CURS.has(c[0]))return"u";const m=miss(c);return !m.length?"a":m.every(p=>CURS.has(p))?"n":"b"};
-const LAY=[["d","Cursadas","--g"],["u","Cursando","--p"],["n","Próximas","--t"],["a","Posso cursar","--b"],["b","Bloqueadas","--x"]];
+const LAY=[["d","Cursadas","--g"],["u","Cursando","--p"],["n","Próximas","--t"],["a","Posso cursar","--b"],["b","Bloqueadas","--x"],["o","Optativas","--e"]];
 function render(){
  CURS=curs();
- const n=C.filter(c=>done.has(c[0])).length,cnt={};
- C.forEach(c=>{const k=st(c);cnt[k]=(cnt[k]||0)+1});
- $("pb").style.width=(100*n/C.length)+"%";
- $("ps").textContent=n+" de "+C.length+" disciplinas cursadas • "+(cnt.u||0)+" cursando agora";
+ const G=C.filter(c=>c[2]<=10),n=G.filter(c=>done.has(c[0])).length,cnt={},hd=G.filter(c=>done.has(c[0])).reduce((a,c)=>a+c[4],0),ht=G.reduce((a,c)=>a+c[4],0);
+ G.forEach(c=>{const k=st(c);cnt[k]=(cnt[k]||0)+1});cnt.o=C.length-G.length;
+ $("pb").style.width=(100*hd/ht)+"%";
+ $("ps").textContent=n+" de "+G.length+" disciplinas • "+hd+"h de "+ht+"h • "+(cnt.u||0)+" cursando agora";
  $("tabs").innerHTML=LAY.map(l=>`<button data-v="${l[0]}" class="${VIS[l[0]]?"":"off"}"><i style="background:var(${l[2]})"></i>${l[1]} ${cnt[l[0]]||0}</button>`).join("");
  let h="";
- for(let s=1;s<=10;s++){
+ for(let s=1;s<=11;s++){
+  if(s==11&&!VIS.o)continue;
   const all=C.filter(c=>c[2]==s),sh=all.filter(c=>VIS[st(c)]);
   if(!sh.length)continue;
-  h+=`<h2>${s}º SEMESTRE • ${all.filter(c=>done.has(c[0])).length}/${all.length}</h2><div class="grid">`+sh.map(c=>{
+  h+=`<h2>${s==11?"OPTATIVAS":s+"º SEMESTRE"} • ${all.filter(c=>done.has(c[0])).length}/${all.length}</h2><div class="grid">`+sh.map(c=>{
    const m=miss(c);
    return `<button class="c ${st(c)}" data-c="${c[0]}"><b>${c[0]}</b><span>${c[1]}</span>${m.length?`<small>${m.join(", ")}</small>`:""}</button>`}).join("")+"</div>";
  }
@@ -314,7 +479,7 @@ $("go").onclick=()=>{
  });
  save();render();$("ir").textContent=k+" disciplinas marcadas. Confira o resultado.";
 };
-$("rst").onclick=()=>{if(confirm("Voltar ao estado do PDF enviado?")){done=new Set(DEF);save();render()}};
+$("rst").onclick=()=>{if(confirm("Desmarcar todas as matérias cursadas e as marcadas como cursando?")){done=new Set(DEF);CM={};save();saveCM();render()}};
 const KE="fluxo_exams_v1";
 let EX=[],cal=new Date(),sel=null,edId=null;
 try{EX=JSON.parse(localStorage.getItem(KE)||"[]")}catch(e){}
@@ -332,7 +497,7 @@ const item=e=>{const n=dd(e.date);return `<button class="ev${n>=0&&n<=3?" u":""}
 $("dl").innerHTML=C.map(c=>`<option value="${c[0]} – ${c[1]}">`).join("");
 function renderP(){
  const t=iso(td()),up=EX.filter(e=>e.date>=t).sort(srt),pa=EX.filter(e=>e.date<t).sort(srt).reverse();
- let h=`<div class="top"><h1>Provas</h1><button class="add" id="ad">+ Adicionar</button></div>`;
+ let h=`<div class="top"><h1>Provas</h1><button class="add" id="ad">+ Adicionar</button></div><div class="row" style="padding:0 14px 4px"><button class="s" id="sy">${syLabel()}</button></div>`;
  if(up[0]){const e=up[0];h+=`<div class="next" data-e="${e.id}"><small>PRÓXIMA PROVA</small><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}</span><em>${rel(e.date)}</em></div>`}
  h+=`<h2>PRÓXIMAS</h2>`+(up.length?`<div class="list">${up.map(item).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhuma prova cadastrada. Toque em "+ Adicionar".</p>`);
  const y=cal.getFullYear(),m=cal.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
@@ -346,6 +511,7 @@ function renderP(){
 }
 $("v-prov").onclick=e=>{
  const t=e.target;
+ if(t.closest("#sy"))return openSY();
  if(t.closest("#ad"))return openE();
  if(t.closest("#pm")){cal=new Date(cal.getFullYear(),cal.getMonth()-1,1);return renderP()}
  if(t.closest("#nm")){cal=new Date(cal.getFullYear(),cal.getMonth()+1,1);return renderP()}
@@ -631,7 +797,7 @@ function parseSG(txt){
   if(nm&&nm==nm.toUpperCase())nm=nm.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()).replace(/\s(De|Da|Do|Das|Dos|E|Em|Para|Com)(?=\s)/g,c=>c.toLowerCase());
   if(cur&&!cur[1].startsWith("("))nm=cur[1];
   const ch=seg.match(/(\d{2,3})\s*h\b/i)||seg.match(/carga hor[aá]ria[^\d]{0,15}(\d{2,3})/i);
-  out.push({on:toks.length>0,code:x.code,name:nm,ch:ch?+ch[1]:68,toks});
+  out.push({on:toks.length>0,code:x.code,name:nm,ch:ch?+ch[1]:(cur&&cur[4]||68),toks});
  });
  return out;
 }
@@ -667,6 +833,86 @@ $("sgc").onclick=()=>{
  $("sgl").innerHTML="";$("sgc").hidden=true;$("sgb").textContent="Fechar";$("sgb").onclick=()=>{$("dsg").close();$("sgc").hidden=false;$("sgb").textContent="Voltar";$("sgb").onclick=()=>{$("sg1").hidden=false;$("sg2").hidden=true}};
 };
 render();renderP();renderA();renderN();renderH();tab("p");
+/* ===== Sincronização (Firebase) ===== */
+function loadAll(){
+ const g=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
+ done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);
+}
+function renderAll(){render();renderP();renderA();renderN();renderH()}
+function syLabel(){const S=window.SYNC||{};return S.s=="on"?"☁️ Sincronizado • "+S.email:S.s=="out"?"☁️ Entrar para sincronizar":S.s=="err"?"☁️ Erro de sincronização":"☁️ Sincronização: não configurada"}
+function syncUI(){
+ const S=window.SYNC||{s:"nocfg"},b=$("sy");if(b)b.textContent=syLabel();
+ $("syt").textContent=S.s=="nocfg"?"A sincronização ainda não foi configurada neste app. Sem ela, os dados ficam só neste aparelho.":(S.s=="on"||S.s=="err")?(S.email?"Conectado como "+S.email+". ":"")+(S.msg||""):(S.msg||"Entre com a mesma conta em todos os aparelhos. Se este aparelho já tem dados, entre por ele primeiro.");
+ $("syf").hidden=S.s!="out";$("syo").hidden=!(S.s=="on"||S.s=="err");
+}
+function openSY(){syncUI();$("dsy").showModal()}
+$("syg").onclick=()=>SYNC.google();
+$("syl").onclick=()=>SYNC.login($("sye").value.trim(),$("syp").value);
+$("syc").onclick=()=>SYNC.signup($("sye").value.trim(),$("syp").value);
+$("syn").onclick=()=>SYNC.now();
+$("syx").onclick=()=>SYNC.logout();
+$("syz").onclick=()=>$("dsy").close();
+(function(){
+ const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1"];
+ const ST=window.SYNC={s:CFG?"out":"nocfg",email:"",msg:""},upd=()=>syncUI();
+ const rawSet=Storage.prototype.setItem,rT={};
+ let api=null,ref=null,unsub=null,ready=false,applying=false,timer=null;
+ const meta=()=>{try{return JSON.parse(localStorage.getItem("fluxo_meta")||"{}")}catch(e){return{}}};
+ const setMeta=m=>rawSet.call(localStorage,"fluxo_meta",JSON.stringify(m));
+ const hm=()=>new Date().toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+ const em=x=>({"auth/invalid-credential":"E-mail ou senha incorretos.","auth/wrong-password":"E-mail ou senha incorretos.","auth/user-not-found":"Conta não encontrada. Use Criar conta.","auth/email-already-in-use":"Esse e-mail já tem conta. Use Entrar.","auth/weak-password":"Senha muito curta (mínimo 6 caracteres).","auth/invalid-email":"E-mail inválido.","auth/network-request-failed":"Sem conexão com a internet.","auth/popup-closed-by-user":"Login cancelado.","auth/cancelled-popup-request":"Login cancelado.","auth/popup-blocked":"O navegador bloqueou a janela do Google. Libere pop-ups e tente de novo.","auth/unauthorized-domain":"Este endereço não está nos domínios autorizados do Firebase.","auth/operation-not-allowed":"Esse tipo de login não está ativado no Firebase."}[x.code]||("Erro: "+(x.code||x.message)));
+ Storage.prototype.setItem=function(k,v){
+  rawSet.call(this,k,v);
+  if(this===localStorage&&!applying&&SK.includes(k)){const m=meta();m[k]=Date.now();setMeta(m);clearTimeout(timer);timer=setTimeout(push,1200)}
+ };
+ async function push(){
+  if(!api||!ref||!ready)return;
+  const m=meta(),items={};let any=false;
+  SK.forEach(k=>{const v=localStorage.getItem(k);if(v==null)return;const lt=m[k]||0;
+   if(rT[k]===undefined||lt>rT[k]){const t=lt||Date.now();items[k]={v,t};m[k]=t;any=true}});
+  if(!any)return;
+  setMeta(m);
+  try{await api.Fs.setDoc(ref,{items},{merge:true});Object.keys(items).forEach(k=>rT[k]=items[k].t);ST.s="on";ST.msg="Sincronizado às "+hm()}
+  catch(e){ST.s="err";ST.msg=em(e)}
+  upd();
+ }
+ function onSnap(snap){
+  if(snap.metadata.hasPendingWrites)return;
+  const it=(snap.exists()&&snap.data().items)||{},m=meta();let ch=false;
+  applying=true;
+  SK.forEach(k=>{const r=it[k];if(r){rT[k]=r.t;if(r.t>(m[k]||0)){rawSet.call(localStorage,k,r.v);m[k]=r.t;ch=true}}});
+  applying=false;setMeta(m);ready=true;
+  if(ch){loadAll();renderAll()}
+  ST.s="on";ST.msg="Sincronizado às "+hm();upd();push();
+ }
+ async function auth(f,e,p){
+  if(!api){ST.msg="Carregando… tente de novo em instantes.";return upd()}
+  if(!e||!p){ST.msg="Digite e-mail e senha.";return upd()}
+  try{ST.msg="Entrando…";upd();await api.Au[f](api.auth,e,p);ST.msg=""}catch(x){ST.msg=em(x);upd()}
+ }
+ ST.google=async()=>{
+  if(!api){ST.msg="Carregando… tente de novo em instantes.";return upd()}
+  try{ST.msg="Abrindo o Google…";upd();await api.Au.signInWithPopup(api.auth,new api.Au.GoogleAuthProvider());ST.msg=""}
+  catch(x){ST.msg=em(x);upd()}
+ };
+ ST.login=(e,p)=>auth("signInWithEmailAndPassword",e,p);
+ ST.signup=(e,p)=>auth("createUserWithEmailAndPassword",e,p);
+ ST.logout=()=>api&&api.Au.signOut(api.auth);
+ ST.now=()=>{ST.msg="Sincronizando…";upd();push()};
+ if(!CFG)return;
+ (async()=>{
+  const B="https://www.gstatic.com/firebasejs/10.12.2/";
+  const [A,Au,Fs]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
+  const app=A.initializeApp(CFG),a=Au.getAuth(app),db=Fs.getFirestore(app);
+  api={Au,Fs,auth:a,db};
+  Au.onAuthStateChanged(a,u=>{
+   if(unsub)unsub();unsub=null;ready=false;
+   if(u){ST.email=u.email;ST.msg="Sincronizando…";ref=Fs.doc(db,"users",u.uid);unsub=Fs.onSnapshot(ref,onSnap,e=>{ST.s="err";ST.msg=em(e);upd()})}
+   else{ref=null;ST.s="out";ST.email="";ST.msg=""}
+   upd();
+  });
+ })().catch(e=>{ST.s="err";ST.msg="Não consegui carregar o Firebase: "+(e.message||e);upd()});
+})();
 if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
 </script>
 </body>
