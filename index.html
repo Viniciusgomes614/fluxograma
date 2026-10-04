@@ -189,7 +189,8 @@ h2{margin:12px 14px 6px}
 .nc .nr{margin-top:6px}
 </style>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
-<style>.dd{display:inline-block;width:7px;height:7px;border-radius:50%;border:2px solid transparent;box-sizing:border-box}.dds{display:flex;justify-content:center;flex-wrap:wrap;gap:3px;margin-top:4px}.cl2 .dt{width:46px}.cl2.off .tx b{text-decoration:line-through;opacity:.6}.cl2.off .tx span{color:var(--r);font-weight:600}
+<style>.tabs{scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.bx{margin:0 14px 10px;padding:12px;background:var(--card);border:1px solid var(--xb);border-radius:14px}.chs{display:flex;flex-wrap:wrap;gap:6px}.fr{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;font-size:13px}.fr .s{min-height:0;padding:2px 10px}#v-ext summary{cursor:pointer;margin-top:12px;font-size:13px}#v-ext .sub{margin:6px 0}
+.dd{display:inline-block;width:7px;height:7px;border-radius:50%;border:2px solid transparent;box-sizing:border-box}.dds{display:flex;justify-content:center;flex-wrap:wrap;gap:3px;margin-top:4px}.cl2 .dt{width:46px}.cl2.off .tx b{text-decoration:line-through;opacity:.6}.cl2.off .tx span{color:var(--r);font-weight:600}
 .lc{margin:0 14px;background:var(--card);border:1px solid var(--xb);border-radius:14px;overflow:hidden}.ev2{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:58px;padding:9px 12px;border:0;border-top:1px solid var(--xb);background:transparent;color:var(--fg);font:inherit;text-align:left}.lc>.ev2:first-child{border-top:0}.dt{width:36px;flex:none;text-align:center;line-height:1.1}.dt b{display:block;font-size:20px}.dt small{display:block;font-size:10px;text-transform:uppercase;color:var(--mut)}.tx{flex:1;min-width:0}.tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx span{display:block;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ev2 em{font-style:normal;font-size:12px;color:var(--mut);white-space:nowrap}.ev2.u em{color:var(--r);font-weight:600}.past .ev2{opacity:.6}
 nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:90px}#v-ext label{display:block;font-size:12px;color:var(--mut);margin-top:8px}#v-ext input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--card);color:var(--fg)}#v-ext textarea{width:100%;height:70px;font-size:11px}</style>
 </head>
@@ -203,9 +204,9 @@ nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:9
 <h1>Meu fluxograma</h1>
 <div class="bar"><i id="pb"></i></div>
 <div class="sub" id="ps"></div>
-<div class="sub">Roxo: cursando neste semestre (vem das abas Aulas, Faltas e Notas, ou toque numa matéria). Verde-água: liberadas se você passar em todas as que está cursando. Toque nas cores abaixo para mostrar ou esconder.</div>
+<div class="sub">Toque numa matéria para ver detalhes e marcar. Roxo: cursando agora. Verde-água: liberada se você passar nas que cursa. As cores abaixo filtram a lista.</div>
 </header>
-<div class="row"><button id="imp">Importar histórico do SIGAA</button><button class="s" id="rst">Limpar marcações</button></div>
+<div class="row"><button class="s" id="imp">Importar histórico do SIGAA</button><button class="s" id="rst">Limpar marcações</button></div>
 <div class="tabs" id="tabs"></div>
 <main id="main"></main>
 </section>
@@ -458,7 +459,7 @@ let ACAD={ini:"2026-08-19",fim:"2026-12-19",fer:[["2026-10-12","Nossa Sra. Apare
 try{ACAD={...ACAD,...JSON.parse(localStorage.getItem(KAC)||"{}")}}catch(e){}
 const saveAC=()=>{try{localStorage.setItem(KAC,JSON.stringify(ACAD))}catch(e){}};
 const HUES=[215,8,145,38,275,175,330,60,25,190,100,300];
-let COL={},fm=null,grp=false;
+let COL={},fm=null,grp=false,MED=+(localStorage.getItem("fluxo_media_v1")||5)||5;
 try{COL=JSON.parse(localStorage.getItem("fluxo_cor_v1")||"{}")}catch(e){}
 function ck(d){const m=String(d).match(/^([A-Z]{3,5}\d{2,4})/);if(m)return nz(m[1]);const c=C.find(k=>nn(k[1])==nn(d));return c?nz(c[0]):nn(d)}
 function col(k){if(COL[k]==null){const u=new Set(Object.values(COL));let i=0;while(u.has(i)&&i<11)i++;COL[k]=u.size>=12?Object.keys(COL).length%12:i;try{localStorage.setItem("fluxo_cor_v1",JSON.stringify(COL))}catch(e){}}return "hsl("+HUES[COL[k]]+" 62% 46%)"}
@@ -488,7 +489,7 @@ function render(){
  const G=C.filter(c=>c[2]<=10),n=G.filter(c=>done.has(c[0])).length,cnt={},hd=G.filter(c=>done.has(c[0])&&!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0),ht=G.filter(c=>!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0);
  G.forEach(c=>{const k=st(c);cnt[k]=(cnt[k]||0)+1});cnt.o=C.length-G.length;
  $("pb").style.width=(100*hd/ht)+"%";
- $("ps").textContent=n+" de "+G.length+" disciplinas • "+hd+"h de "+ht+"h • "+(cnt.u||0)+" cursando agora";
+ $("ps").textContent=G.filter(c=>done.has(c[0])&&!/^OPT/.test(c[0])).length+" de "+G.filter(c=>!/^OPT/.test(c[0])).length+" obrigatórias • "+hd+"h de "+ht+"h • "+(cnt.u||0)+" cursando agora";
  $("tabs").innerHTML=LAY.map(l=>`<button data-v="${l[0]}" class="${VIS[l[0]]?"":"off"}"><i style="background:var(${l[2]})"></i>${l[1]} ${cnt[l[0]]||0}</button>`).join("");
  let h="";
  for(let s=1;s<=11;s++){
@@ -709,10 +710,11 @@ function renderN(){
   else if(k.need>10){msg=`Meta inalcançável (precisa de ${f2(k.need)})`;c="var(--r)"}
   else{msg=`Precisa de ${f2(Math.ceil(k.need*100)/100)} nas restantes`;if(k.need>=8)c="var(--e)"}
   const op=NOPEN.has(m.id),lan=m.av.filter(a=>a.g!=null).length;
-  return `<div class="nc"><div class="nh"><div class="ni" data-nt="${m.id}"><div class="f1"><b>${op?"▾":"▸"} ${esc(m.name)}</b><span style="color:${c}">${k.part==null?"—":f2(k.part)}</span></div><div class="pbar"><i style="width:${Math.min(100,k.acc/m.meta*100)}%;background:${c}"></i></div><div class="f2" style="color:${c}">${msg} <small>• ${lan}/${m.av.length} notas • meta ${cm(m.meta)}</small></div></div><button class="ed" data-ne="${m.id}">✎</button></div>${op?m.av.map((a,i)=>`<div class="nr"><span>${esc(a.n)} <small>peso ${cm(a.w)}</small></span><input inputmode="decimal" placeholder="nota" value="${a.g==null?"":cm(a.g)}" data-g="${m.id}:${i}"></div>`).join(""):""}</div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria". Toque numa matéria para lançar as notas.</p>`;
+  return `<div class="nc" style="border-left:4px solid ${mc(m.name)}"><div class="nh"><div class="ni" data-nt="${m.id}"><div class="f1"><b>${op?"▾":"▸"} ${esc(m.name)}</b><span style="color:${c}">${k.part==null?"—":f2(k.part)}</span></div><div class="pbar"><i style="width:${Math.min(100,k.acc/m.meta*100)}%;background:${c}"></i></div><div class="f2" style="color:${c}">${msg} <small>• ${lan}/${m.av.length} notas • meta ${cm(m.meta)}</small></div></div><button class="ed" data-ne="${m.id}">✎</button></div>${op?m.av.map((a,i)=>`<div class="nr"><span>${esc(a.n)} <small>peso ${cm(a.w)}</small></span><input inputmode="decimal" placeholder="nota" value="${a.g==null?"":cm(a.g)}" data-g="${m.id}:${i}"></div>`).join(""):""}</div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria". Toque numa matéria para lançar as notas.</p>`;
  $("v-not").innerHTML=h;
 }
 $("v-not").onclick=e=>{
+ if(e.target.closest("#nmed")){const v=num(prompt("Média para passar em todas as matérias (padrão da UFBA: 5):",cm(MED)));if(v==null||v<0||v>10)return;MED=v;try{localStorage.setItem("fluxo_media_v1",String(v))}catch(x){}NT.forEach(m=>m.meta=v);try{localStorage.setItem(KN,JSON.stringify(NT))}catch(x){}return renderN()}
  if(e.target.closest("#na"))return openN();
  let b=e.target.closest("[data-ne]");if(b)return openN(b.dataset.ne);
  b=e.target.closest("[data-nt]");if(b){const i=b.dataset.nt;NOPEN.has(i)?NOPEN.delete(i):NOPEN.add(i);renderN()}
@@ -742,14 +744,14 @@ function openN(id){
  const m=id?NT.find(x=>x.id==id):null;nId=m?m.id:null;
  tmp=m?m.av.map(a=>({...a})):[1,2,3].map(i=>({n:"Av. "+i,w:1,g:null}));
  $("nt").textContent=m?"Editar matéria":"Nova matéria";
- $("nn").value=m?m.name:"";$("nmt").value=m?cm(m.meta):"7";
+ $("nn").value=m?m.name:"";$("nmt").value=m?cm(m.meta):cm(MED);
  $("nn").style.borderColor="";$("ndl").style.display=m?"":"none";rowsN();$("dn").showModal();
 }
 $("ns").onclick=()=>{
  const name=$("nn").value.trim(),W=tmp.reduce((s,a)=>s+a.w,0);
  $("nn").style.borderColor=name?"":"var(--r)";
  if(!name||!tmp.length||W<=0)return;
- const o={name,meta:Math.min(10,Math.max(0,num($("nmt").value)??7)),av:tmp.map(a=>({n:a.n.trim()||"Avaliação",w:a.w,g:a.g}))};
+ const o={name,meta:Math.min(10,Math.max(0,num($("nmt").value)??MED)),av:tmp.map(a=>({n:a.n.trim()||"Avaliação",w:a.w,g:a.g}))};
  if(nId)Object.assign(NT.find(x=>x.id==nId),o);else NT.push({id:Date.now().toString(36),...o});
  saveN();$("dn").close();renderN();
 };
@@ -955,7 +957,7 @@ $("sgc").onclick=()=>{
   const name=(c.code?c.code+" – ":"")+c.name.trim();
   c.toks.forEach(k=>{const ex=CL.find(x=>x.name==name&&x.start==k.start&&x.days+""==k.days+"");if(ex){if(k.room&&!ex.room){ex.room=k.room;a++}}else{CL.push({id:uid(),name,days:k.days,start:k.start,end:k.end,room:k.room||""});a++}});
   if(!AB.some(x=>x.name==name)){AB.push({id:uid(),name,ch:c.ch||68,f:0});f++}
-  if(!NT.some(x=>x.name==name)){NT.push({id:uid(),name,meta:7,av:[1,2,3].map(i=>({n:"Av. "+i,w:1,g:null}))});n++}
+  if(!NT.some(x=>x.name==name)){NT.push({id:uid(),name,meta:MED,av:[1,2,3].map(i=>({n:"Av. "+i,w:1,g:null}))});n++}
  });
  saveH();saveA();saveN();renderH();renderA();renderN();
  $("sgi").textContent="Pronto! Adicionei "+a+" horários/salas de aula, "+f+" matérias em Faltas e "+n+" em Notas. Edite o que precisar em cada aba.";
@@ -986,21 +988,19 @@ function renderX(){
  lib=G.filter(c=>!S2.has(c[0])&&!ok(c,B)&&miss(c).every(p=>S2.has(p))),hs=[...SIM].reduce((a,k)=>a+(by[k]?by[k][4]:0),0),ex=c=>/estágio|conclusão|enade/i.test(c[1]),
  bar=(t,g)=>{const a=g.filter(c=>done.has(c[0])).reduce((s,c)=>s+c[4],0),b=g.reduce((s,c)=>s+c[4],0);return `<div class="sub" style="margin:10px 0 4px">${t}: ${a}h de ${b}h (${Math.round(100*a/b)}%)</div><div style="height:8px;background:var(--xb);border-radius:6px"><div style="height:8px;width:${100*a/b}%;background:var(--g,#2f9e6b);border-radius:6px"></div></div>`},
  U=location.origin+location.pathname,BM="javascript:(function(){var t=document.body.innerText,k=/Componentes Curriculares/i.test(t)?'hi':'sg';window.open('"+U+"#'+k+'='+btoa(unescape(encodeURIComponent(t))))})()";
- $("v-ext").innerHTML=`<h2>PROGRESSO</h2><div style="padding:0 14px">${bar("Obrigatórias",GO)}${bar("Obrigatórias sem estágio e TCC",GO.filter(c=>!ex(c)))}${bar("Optativas",G.filter(c=>/^OPT/.test(c[0])))}<p class="sub">Usa a carga horária do currículo (60h, 30h, 90h...). Optativas e atividades complementares não entram.</p></div>
-<h2>SIMULADOR DE SEMESTRE</h2><div style="padding:0 14px"><p class="sub">Toque nas matérias que pretende cursar. Considero que você passa nas que está cursando agora.</p><div class="grid">${cand.map(c=>`<button class="c ${SIM.has(c[0])?"d":"a"}" data-s="${c[0]}"><b>${c[0]}</b><span>${c[1]}</span></button>`).join("")||'<p class="sub">Nada disponível.</p>'}</div>
-<p class="sub">${SIM.size?SIM.size+" matérias • "+hs+"h":"Nenhuma selecionada"}</p>${SIM.size?`<p><b>Libera depois:</b> ${lib.length?lib.map(c=>c[0]+" "+c[1]).join("; "):"nada novo"}</p>`:""}</div>
-<h2>CALENDÁRIO ACADÊMICO</h2><div style="padding:0 14px"><label>Início das aulas<input type="date" id="xi" value="${ACAD.ini}"></label><label>Fim das aulas<input type="date" id="xf" value="${ACAD.fim}"></label>
-${ACAD.fer.map((f,i)=>`<div class="sub" style="margin-top:8px">${fmt(f[0])} • ${esc(f[1])} <button data-fd="${i}" style="min-height:0">✕</button></div>`).join("")}
-<div class="row" style="padding:8px 0"><input type="date" id="xfd" style="flex:1"><input id="fn2" placeholder="Feriado ou recesso" style="flex:2"><button data-fa="1">+</button></div><p class="sub">Feriados sugeridos; confira no calendário da UFBA. Eles aparecem como "sem aula" na grade.</p></div>
-<h2>LEMBRETES</h2><div style="padding:0 14px"><div class="row" style="padding:0"><button data-a="ics">📅 Exportar provas e aulas (.ics)</button></div><p class="sub">Abra o arquivo no celular e adicione ao Google Agenda. Provas avisam 7 dias, 1 dia e 2h antes (ou 9h do dia anterior se não tiver horário); aulas avisam 30 min antes. Exporte de novo quando mudar algo.</p></div>
-<h2>IMPORTAR SEM COLAR</h2><div style="padding:0 14px"><p class="sub">No computador: copie o código abaixo e salve como favorito. Logado no SIGAA, clique no favorito: ele abre o app já lendo a página (turmas e avaliações). Seus dados não passam por servidor.</p><textarea readonly>${esc(BM)}</textarea><div class="row" style="padding:6px 0"><button data-a="bm">Copiar código</button></div></div>
-<h2>APP E DADOS</h2><div class="row"><button data-a="inst">📲 Instalar app</button><button data-a="th">🌓 Tema</button><button data-a="bk">⬇️ Backup</button><button data-a="rs">⬆️ Restaurar</button><input type="file" id="rsf" accept=".json" hidden></div>`}
+ const card=(t,x)=>`<h2>${t}</h2><div class="bx">${x}</div>`;
+ $("v-ext").innerHTML=`<div class="top"><h1>Mais</h1></div>`
+ +card("PROGRESSO",`${bar("Obrigatórias",GO)}${bar("Sem estágio e TCC",GO.filter(c=>!ex(c)))}${bar("Optativas",G.filter(c=>/^OPT/.test(c[0])))}<p class="sub">Carga horária conforme o currículo. Atividades complementares não entram.</p>`)
+ +card("SIMULADOR DE SEMESTRE",`<p class="sub" style="margin-top:0">Escolha as matérias que pretende cursar e veja o que elas liberam. Considero que você passa nas que está cursando agora.</p><div class="chs">${cand.map(c=>chip('data-s="'+c[0]+'"',esc(c[0]+" "+c[1].slice(0,20)),col(nz(c[0])),SIM.has(c[0]))).join("")||'<span class="sub">Nada disponível.</span>'}</div>${SIM.size?`<p class="sub"><b>${SIM.size} matérias • ${hs}h.</b> Libera depois: ${lib.length?lib.map(c=>esc(c[0]+" "+c[1])).join("; "):"nada novo"}</p>`:""}`)
+ +card("CALENDÁRIO ACADÊMICO",`<div style="display:flex;gap:10px"><label style="flex:1">Início das aulas<input type="date" id="xi" value="${ACAD.ini}"></label><label style="flex:1">Fim das aulas<input type="date" id="xf" value="${ACAD.fim}"></label></div><div style="margin-top:8px">${ACAD.fer.map((f,i)=>`<div class="fr"><span>${fmt(f[0])} • ${esc(f[1])}</span><button class="s" data-fd="${i}">✕</button></div>`).join("")}</div><div style="display:flex;gap:6px;margin-top:8px"><input type="date" id="xfd" style="flex:1.3"><input id="fn2" placeholder="Feriado ou recesso" style="flex:2"><button class="s" data-fa="1">+</button></div><p class="sub">Feriados sugeridos para Salvador; confira no calendário da UFBA. Eles e os dias fora do semestre aparecem como sem aula.</p>`)
+ +card("AGENDA E IMPORTAÇÃO",`<button class="s" data-a="ics" style="width:100%">📅 Exportar provas e aulas (.ics)</button><p class="sub">Abra o arquivo no celular para adicionar ao Google Agenda. Provas avisam 7 dias, 1 dia e 2h antes; aulas, 30 min antes. Exporte de novo quando mudar algo.</p><details><summary>Importar do SIGAA sem copiar e colar (computador)</summary><p class="sub">Copie o código, salve como favorito (cole no campo URL) e clique nele com o SIGAA aberto na página inicial.</p><textarea readonly>${esc(BM)}</textarea><button class="s" data-a="bm">Copiar código</button></details>`)
+ +card("APP E DADOS",`<div class="chs"><button class="s" data-a="inst">📲 Instalar</button><button class="s" data-a="th">🌓 Tema</button><button class="s" data-a="bk">⬇️ Backup</button><button class="s" data-a="rs">⬆️ Restaurar</button></div><input type="file" id="rsf" accept=".json" hidden>`)}
 $("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
  if(d.s){SIM.has(d.s)?SIM.delete(d.s):SIM.add(d.s)}
  else if(d.fd){ACAD.fer.splice(+d.fd,1);saveAC()}
  else if(d.fa){const x=$("xfd").value;if(!x)return;ACAD.fer.push([x,$("fn2").value||"Sem aula"]);ACAD.fer.sort();saveAC()}
  else if(d.a=="ics")return icsDL();
- else if(d.a=="bm")return navigator.clipboard.writeText(b.closest("div").previousElementSibling.value).then(()=>b.textContent="Copiado ✓");
+ else if(d.a=="bm")return navigator.clipboard.writeText(b.previousElementSibling.value).then(()=>b.textContent="Copiado ✓");
  else if(d.a=="inst")return DIP?DIP.prompt():alert("No iPhone: Compartilhar → Adicionar à Tela de Início. No Android/Chrome: menu ⋮ → Instalar app.");
  else if(d.a=="th"){const t=document.documentElement.dataset.theme=="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("fluxo_theme",t)}catch(x){}return}
  else if(d.a=="bk"){const o={};[K,KC,KE,KA,KN,KH,KS,KHI,KAC].forEach(k=>o[k]=localStorage.getItem(k));const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:"application/json"}));a.download="meu-fluxograma-backup.json";a.click();return}
@@ -1015,7 +1015,7 @@ fixCH();
 /* ===== Sincronização (Firebase) ===== */
 function loadAll(){
  const g=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
- done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});COL=g("fluxo_cor_v1",{});fixCH();ACAD={...ACAD,...g(KAC,{})};
+ done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});COL=g("fluxo_cor_v1",{});MED=+g("fluxo_media_v1",5)||5;fixCH();ACAD={...ACAD,...g(KAC,{})};
 }
 function renderAll(){render();renderP();renderA();renderN();renderH()}
 function syIcon(){const S=window.SYNC||{};return S.s=="on"?"☁️✓":S.s=="err"?"☁️⚠️":"☁️"}
@@ -1033,7 +1033,7 @@ $("syn").onclick=()=>SYNC.now();
 $("syx").onclick=()=>SYNC.logout();
 $("syz").onclick=()=>$("dsy").close();
 (function(){
- const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1","fluxo_cor_v1"];
+ const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1","fluxo_cor_v1","fluxo_media_v1"];
  const ST=window.SYNC={s:CFG?"out":"nocfg",email:"",msg:""},upd=()=>syncUI();
  function mg(b,l,r,pr){
   let B,L,R;try{B=JSON.parse(b||"null")||[];L=JSON.parse(l);R=JSON.parse(r)}catch(e){return null}
