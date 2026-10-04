@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#2b78c2">
+<meta name="theme-color" content="#f3f4f6" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#111418" media="(prefers-color-scheme: dark)">
 <script src="firebase-config.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
@@ -968,6 +968,8 @@ render();renderP();renderA();renderN();renderH();tab("p");
 let SIM=new Set(),DIP=null;
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();DIP=e});
 try{const th=localStorage.getItem("fluxo_theme");if(th)document.documentElement.dataset.theme=th}catch(e){}
+function tcol(){const t=document.documentElement.dataset.theme,dk=t?t=="dark":matchMedia("(prefers-color-scheme:dark)").matches;document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.remove());const m=document.createElement("meta");m.name="theme-color";m.content=dk?"#111418":"#f3f4f6";document.head.appendChild(m)}
+tcol();matchMedia("(prefers-color-scheme:dark)").addEventListener("change",tcol);
 const _tab=tab;tab=function(v){_tab(v);$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
 try{const lt=localStorage.getItem("fluxo_tab");if(lt&&lt!="p"&&!/^#(sg|hi)=/.test(location.hash)){tab(lt);const sy=+localStorage.getItem("fluxo_scroll_"+lt)||0;setTimeout(()=>scrollTo(0,sy),50)}}catch(e){}
 addEventListener("scroll",()=>{try{const t=localStorage.getItem("fluxo_tab")||"p";localStorage.setItem("fluxo_scroll_"+t,String(scrollY))}catch(e){}},{passive:true});
@@ -1002,7 +1004,7 @@ $("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b
  else if(d.a=="ics")return icsDL();
  else if(d.a=="bm")return navigator.clipboard.writeText(b.previousElementSibling.value).then(()=>b.textContent="Copiado ✓");
  else if(d.a=="inst")return DIP?DIP.prompt():alert("No iPhone: Compartilhar → Adicionar à Tela de Início. No Android/Chrome: menu ⋮ → Instalar app.");
- else if(d.a=="th"){const t=document.documentElement.dataset.theme=="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("fluxo_theme",t)}catch(x){}return}
+ else if(d.a=="th"){const t=document.documentElement.dataset.theme=="dark"?"light":"dark";document.documentElement.dataset.theme=t;tcol();try{localStorage.setItem("fluxo_theme",t)}catch(x){}return}
  else if(d.a=="bk"){const o={};[K,KC,KE,KA,KN,KH,KS,KHI,KAC].forEach(k=>o[k]=localStorage.getItem(k));const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:"application/json"}));a.download="meu-fluxograma-backup.json";a.click();return}
  else if(d.a=="rs")return $("rsf").click();
  renderX()};
