@@ -189,7 +189,8 @@ h2{margin:12px 14px 6px}
 .nc .nr{margin-top:6px}
 </style>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
-<style>.cr{display:flex;align-items:stretch;border-top:1px solid var(--xb)}.lc>.cr:first-child{border-top:0}.cr .ev2{border-top:0;flex:1;width:auto;min-width:0}.fl{flex:none;width:64px;border:0;border-left:1px solid var(--xb);background:transparent;color:var(--mut);font:inherit;font-size:12px}.fl.on{color:var(--r);font-weight:700}#dEnd{max-width:92vw;width:440px;border:1px solid var(--xb);border-radius:14px;background:var(--card);color:var(--fg);padding:16px}#dEnd::backdrop{background:rgba(0,0,0,.6)}#dEnd .fr label{display:flex;gap:8px;align-items:center}#dEnd input[type=text]{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--bg);color:var(--fg)}
+<style>#v-ext h2{display:flex;justify-content:space-between;align-items:center}#v-ext .lk{background:none;border:0;color:var(--b);font:inherit;font-size:13px;text-transform:none;letter-spacing:0;padding:0;min-height:0;cursor:pointer}#v-ext .s{background:var(--bg);color:var(--fg);border:1px solid var(--xb);border-radius:10px;padding:10px 14px;font:inherit}
+nav button[data-v="a"],nav button[data-v="f"]{display:none}.cr{display:flex;align-items:stretch;border-top:1px solid var(--xb)}.lc>.cr:first-child{border-top:0}.cr .ev2{border-top:0;flex:1;width:auto;min-width:0}.fl{flex:none;width:64px;border:0;border-left:1px solid var(--xb);background:transparent;color:var(--mut);font:inherit;font-size:12px}.fl.on{color:var(--r);font-weight:700}#dEnd{max-width:92vw;width:440px;border:1px solid var(--xb);border-radius:14px;background:var(--card);color:var(--fg);padding:16px}#dEnd::backdrop{background:rgba(0,0,0,.6)}#dEnd .fr label{display:flex;gap:8px;align-items:center}#dEnd input[type=text]{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--bg);color:var(--fg)}
 .tabs{scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.bx{margin:0 14px 10px;padding:12px;background:var(--card);border:1px solid var(--xb);border-radius:14px}.chs{display:flex;flex-wrap:wrap;gap:6px}.fr{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;font-size:13px}.fr .s{min-height:0;padding:2px 10px}#v-ext summary{cursor:pointer;margin-top:12px;font-size:13px}#v-ext .sub{margin:6px 0}
 .dd{display:inline-block;width:7px;height:7px;border-radius:50%;border:2px solid transparent;box-sizing:border-box}.dds{display:flex;justify-content:center;flex-wrap:wrap;gap:3px;margin-top:4px}.cl2 .dt{width:46px}.cl2.off .tx b{text-decoration:line-through;opacity:.6}.cl2.off .tx span{color:var(--r);font-weight:600}
 .lc{margin:0 14px;background:var(--card);border:1px solid var(--xb);border-radius:14px;overflow:hidden}.ev2{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:58px;padding:9px 12px;border:0;border-top:1px solid var(--xb);background:transparent;color:var(--fg);font:inherit;text-align:left}.lc>.ev2:first-child{border-top:0}.dt{width:36px;flex:none;text-align:center;line-height:1.1}.dt b{display:block;font-size:20px}.dt small{display:block;font-size:10px;text-transform:uppercase;color:var(--mut)}.tx{flex:1;min-width:0}.tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx span{display:block;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ev2 em{font-style:normal;font-size:12px;color:var(--mut);white-space:nowrap}.ev2.u em{color:var(--r);font-weight:600}.past .ev2{opacity:.6}
@@ -653,11 +654,12 @@ document.querySelector("nav").onclick=e=>{const b=e.target.closest("button");if(
 const KA="fluxo_abs_v1";
 let AB=[],abId=null;
 try{AB=JSON.parse(localStorage.getItem(KA)||"[]")}catch(e){}
+const sw=v=>`<div class="seg" style="margin:8px 14px 4px"><button data-sw="n" class="${v=="n"?"on":""}">Notas</button><button data-sw="a" class="${v=="a"?"on":""}">Faltas</button></div>`;
 const saveA=()=>{try{localStorage.setItem(KA,JSON.stringify(AB))}catch(e){}};
 const lim=ch=>Math.floor(ch*0.25/2);
 const pl=(n,a,b)=>n+" "+(n==1?a:b);
 function renderA(){
- let h=`<div class="top"><h1>Faltas</h1><button class="add" id="aa">+ Matéria</button></div>`;
+ let h=sw("a")+`<div class="top"><h1>Faltas</h1><button class="add" id="aa">+ Matéria</button></div>`;
  h+=AB.length?AB.map(a=>{
   const L=lim(a.ch),r=L?a.f/L:(a.f?2:0),over=a.f>L,at=a.f==L,
   c=over||at?"var(--r)":r>=.7?"var(--e)":"var(--g)",
@@ -668,6 +670,7 @@ function renderA(){
 }
 $("v-abs").onclick=e=>{
  const q=s=>e.target.closest(s);let b;
+ {const w=q("[data-sw]");if(w){tab(w.dataset.sw);return}}
  if(q("#aa"))return openA();
  if(b=q("[data-ae]"))return openA(b.dataset.ae);
  if(b=q("[data-au]")){AB.find(x=>x.id==b.dataset.au).f++;saveA();return renderA()}
@@ -704,7 +707,7 @@ function calc(m){
 }
 const NOPEN=new Set();
 function renderN(){
- let h=`<div class="top"><h1>Notas</h1><button class="add" id="na">+ Matéria</button></div>`;
+ let h=sw("n")+`<div class="top"><h1>Notas</h1><button class="add" id="na">+ Matéria</button></div>`;
  h+=NT.length?NT.map(m=>{
   const k=calc(m);let msg,c="var(--fg)";
   if(k.done){const ok=k.acc>=m.meta-1e-9;msg=`Média final ${f2(k.acc)} — ${ok?"meta atingida":"abaixo da meta"}`;c=ok?"var(--g)":"var(--r)"}
@@ -717,6 +720,7 @@ function renderN(){
 }
 $("v-not").onclick=e=>{
  if(e.target.closest("#nmed")){const v=num(prompt("Média para passar em todas as matérias (padrão da UFBA: 5):",cm(MED)));if(v==null||v<0||v>10)return;MED=v;try{localStorage.setItem("fluxo_media_v1",String(v))}catch(x){}NT.forEach(m=>m.meta=v);try{localStorage.setItem(KN,JSON.stringify(NT))}catch(x){}return renderN()}
+ {const w=e.target.closest("[data-sw]");if(w){tab(w.dataset.sw);return}}
  if(e.target.closest("#na"))return openN();
  let b=e.target.closest("[data-ne]");if(b)return openN(b.dataset.ne);
  b=e.target.closest("[data-nt]");if(b){const i=b.dataset.nt;NOPEN.has(i)?NOPEN.delete(i):NOPEN.add(i);renderN()}
@@ -1009,7 +1013,7 @@ function openEnd(){
   ok.forEach(k=>done.add(k));save();CM={};saveCM();
   EX=[];CL=[];SA=[];AB=[];NT=[];saveE();saveH();saveS();saveA();saveN();SIM=new Set();
   d.close();renderAll();tab("o");alert("Semestre "+lb+" encerrado. Atualize as datas do novo semestre em Mais → Calendário acadêmico.")}}
-const _tab=tab;tab=function(v){_tab(v);$("v-hoje").hidden=v!="o";if(v=="o")renderO();$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
+const _tab=tab;tab=function(v){_tab(v);document.querySelectorAll("nav button").forEach(b=>{const k=b.dataset.v;b.classList.toggle("on",k==v||(v=="a"&&k=="n")||(v=="f"&&k=="x"))});$("v-hoje").hidden=v!="o";if(v=="o")renderO();$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
 try{const lt=localStorage.getItem("fluxo_tab")||"o";if(lt!="p"&&!/^#(sg|hi)=/.test(location.hash)){tab(lt);const sy=+localStorage.getItem("fluxo_scroll_"+lt)||0;setTimeout(()=>scrollTo(0,sy),50)}}catch(e){}
 addEventListener("scroll",()=>{try{const t=localStorage.getItem("fluxo_tab")||"p";localStorage.setItem("fluxo_scroll_"+t,String(scrollY))}catch(e){}},{passive:true});
 function icsDL(){
@@ -1031,7 +1035,7 @@ function renderX(){
  U=location.origin+location.pathname,BM="javascript:(function(){var t=document.body.innerText,k=/Componentes Curriculares/i.test(t)?'hi':'sg';window.open('"+U+"#'+k+'='+btoa(unescape(encodeURIComponent(t))))})()";
  const card=(t,x)=>`<h2>${t}</h2><div class="bx">${x}</div>`;
  $("v-ext").innerHTML=`<div class="top"><h1>Mais</h1></div>`
- +card("PROGRESSO",`${bar("Obrigatórias",GO)}${bar("Sem estágio e TCC",GO.filter(c=>!ex(c)))}${bar("Optativas",G.filter(c=>/^OPT/.test(c[0])))}<p class="sub">Carga horária conforme o currículo. Atividades complementares não entram.</p>`)
+ +card(`PROGRESSO<button class="lk" data-a="flux">Ver fluxograma ›</button>`,`${bar("Obrigatórias",GO)}${bar("Sem estágio e TCC",GO.filter(c=>!ex(c)))}${bar("Optativas",G.filter(c=>/^OPT/.test(c[0])))}<p class="sub">Carga horária conforme o currículo. Atividades complementares não entram.</p>`)
  +card("SIMULADOR DE SEMESTRE",`<p class="sub" style="margin-top:0">Escolha as matérias que pretende cursar e veja o que elas liberam. Considero que você passa nas que está cursando agora.</p><div class="chs">${cand.map(c=>chip('data-s="'+c[0]+'"',esc(c[0]+" "+c[1].slice(0,20)),col(nz(c[0])),SIM.has(c[0]))).join("")||'<span class="sub">Nada disponível.</span>'}</div>${SIM.size?`<p class="sub"><b>${SIM.size} matérias • ${hs}h.</b> Libera depois: ${lib.length?lib.map(c=>esc(c[0]+" "+c[1])).join("; "):"nada novo"}</p>`:""}`)
  +card("CALENDÁRIO ACADÊMICO",`<div style="display:flex;gap:10px"><label style="flex:1">Início das aulas<input type="date" id="xi" value="${ACAD.ini}"></label><label style="flex:1">Fim das aulas<input type="date" id="xf" value="${ACAD.fim}"></label></div><div style="margin-top:8px">${ACAD.fer.map((f,i)=>`<div class="fr"><span>${fmt(f[0])} • ${esc(f[1])}</span><button class="s" data-fd="${i}">✕</button></div>`).join("")}</div><div style="display:flex;gap:6px;margin-top:8px"><input type="date" id="xfd" style="flex:1.3"><input id="fn2" placeholder="Feriado ou recesso" style="flex:2"><button class="s" data-fa="1">+</button></div><p class="sub">Feriados sugeridos para Salvador; confira no calendário da UFBA. Eles e os dias fora do semestre aparecem como sem aula.</p>`)
  +card("AGENDA E IMPORTAÇÃO",`<button class="s" data-a="ics" style="width:100%">📅 Exportar provas e aulas (.ics)</button><p class="sub">Abra o arquivo no celular para adicionar ao Google Agenda. Provas avisam 7 dias, 1 dia e 2h antes; aulas, 30 min antes. Exporte de novo quando mudar algo.</p><details><summary>Importar do SIGAA sem copiar e colar (computador)</summary><p class="sub">Copie o código, salve como favorito (cole no campo URL) e clique nele com o SIGAA aberto na página inicial.</p><textarea readonly>${esc(BM)}</textarea><button class="s" data-a="bm">Copiar código</button></details>`)
@@ -1047,6 +1051,7 @@ $("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b
  else if(d.a=="th"){const t=document.documentElement.dataset.theme=="dark"?"light":"dark";document.documentElement.dataset.theme=t;tcol();try{localStorage.setItem("fluxo_theme",t)}catch(x){}return}
  else if(d.a=="bk"){bkDL();return}
  else if(d.a=="end")return openEnd();
+ else if(d.a=="flux"){tab("f");scrollTo(0,0);return}
  else if(d.a=="rs")return $("rsf").click();
  renderX()};
 $("v-ext").onchange=e=>{if(e.target.id=="xi"){ACAD.ini=e.target.value;saveAC()}else if(e.target.id=="xf"){ACAD.fim=e.target.value;saveAC()}else if(e.target.id=="rsf"){const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);Object.keys(o).forEach(k=>{if(o[k]!=null)localStorage.setItem(k,o[k])});loadAll();renderAll();renderX();alert("Backup restaurado.")}catch(x){alert("Arquivo inválido.")}})}};
