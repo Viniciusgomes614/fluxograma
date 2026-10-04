@@ -467,7 +467,7 @@ const mc=d=>col(ck(d));
 function chipsP(){const ks=[...new Set(EX.map(e=>ck(e.disc)))];if(fm&&!ks.includes(fm))fm=null;if(ks.length<2&&!fm)return"";
  const nm=k=>{const e=EX.find(x=>ck(x.disc)==k);return e?e.disc.split(" – ")[0].slice(0,14):k},
  ch=(a,l,c,on)=>`<button ${a} style="min-height:0;padding:5px 11px;border-radius:16px;border:1px solid ${c||"var(--xb)"};background:${on?(c||"var(--fg)"):"var(--card)"};color:${on?(c?"#fff":"var(--bg)"):"var(--fg)"};font:inherit;font-size:12.5px;white-space:nowrap;flex:none">${l}</button>`;
- return `<div style="display:flex;gap:6px;overflow-x:auto;padding:0 14px 8px">${ch('data-fm=""',"Todas","",!fm)}${ks.map(k=>ch('data-fm="'+k+'"',esc(nm(k)),col(k),fm==k)).join("")}${ch('data-gr="1"',grp?"☰ Lista":"▤ Agrupar","",false)}</div>`}
+ return `<div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 10px">${ch('data-fm=""',"Todas","",!fm)}${ks.map(k=>ch('data-fm="'+k+'"',esc(nm(k)),col(k),fm==k)).join("")}${ch('data-gr="1"',grp?"☰ Lista":"▤ Agrupar","",false)}</div>`}
 const AL={ECOB40:"ECO151",ENGN95:"ENGC56",MATA45:"MAT45"};
 const nz=s=>{s=s.replace(/([A-Z]+)0+(?=\d)/g,"$1");return AL[s]||s};
 const by=Object.fromEntries(C.map(c=>[c[0],c]));
@@ -598,7 +598,7 @@ function renderP(){
   g+=`<button class="day${s==t?" t":""}${s==sel?" s":""}" data-d="${s}">${d}${c?`<u>${cl.slice(0,3).map(e=>`<span style="color:${mc(e.disc)}">●</span>`).join("")}</u>`:""}</button>`}
  h+=`<div class="cal" style="margin-top:10px"><div class="ch"><button id="pm">‹</button><b>${MN[m]} ${y}</b><button id="nm">›</button></div><div class="wd">${WD.map(w=>`<span>${w[0].toUpperCase()}</span>`).join("")}</div><div class="dg">${g}</div></div>`;
  if(sel){const l=X0.filter(e=>e.date==sel).sort(srt);h+=`<h2>${fmt(sel).toUpperCase()}</h2><div class="${l.length?"lc":"list"}">${l.length?l.map(item).join(""):'<p class="sub" style="margin:0">Sem provas neste dia.</p>'}</div>`}
- if(up.length>1){if(grp){[...new Set(up.map(e=>ck(e.disc)))].forEach(k=>{const l=up.filter(e=>ck(e.disc)==k);h+=`<h2><span style="color:${col(k)}">●</span> ${esc(l[0].disc.toUpperCase())} • ${l.length}</h2><div class="lc">${l.map(item).join("")}</div>`})}else h+=byMonth(up.slice(1))}
+ if(up.length){if(grp){[...new Set(up.map(e=>ck(e.disc)))].forEach(k=>{const l=up.filter(e=>ck(e.disc)==k);h+=`<h2><span style="color:${col(k)}">●</span> ${esc(l[0].disc.toUpperCase())} • ${l.length}</h2><div class="lc">${l.map(item).join("")}</div>`})}else h+=byMonth(up)}
  if(pa.length)h+=`<h2>ANTERIORES</h2><div class="lc past">${pa.map(item).join("")}</div>`;
  $("v-prov").innerHTML=h;
 }
