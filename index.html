@@ -161,7 +161,34 @@ nav button.on{color:var(--fg);font-weight:700}
 .c.n small{color:var(--t)}
 .tabs button i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 .tabs button.off{opacity:.45;text-decoration:line-through}
+
+.top{padding:10px 14px 6px}
+.top h1{font-size:18px}
+h2{margin:12px 14px 6px}
+.tb{display:flex;gap:6px}
+.ic{border:1px solid var(--xb);background:var(--card);color:var(--fg);border-radius:10px;padding:8px 10px;font:inherit}
+.next.sm{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px}
+.next.sm b{font-size:16px;margin:1px 0}
+.next.sm em{margin:0;font-size:15px;text-align:right;white-space:nowrap}
+.day{height:38px;font-size:13px}
+.cal{padding:6px}
+.mc,.mg>i{min-height:62px}
+.fc,.nc{background:var(--card);border:1px solid var(--xb);border-radius:12px;padding:8px 8px 8px 12px;margin:0 14px 8px}
+.fc{display:flex;align-items:center;gap:8px}
+.fi,.ni{flex:1;min-width:0;cursor:pointer}
+.f1{display:flex;justify-content:space-between;gap:8px;margin-bottom:5px}
+.f1 b{font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.f1 span{font-weight:700;font-size:15px;flex:none}
+.f2{font-size:12px;margin-top:4px;font-weight:600}
+.f2 small{color:var(--mut);font-weight:400}
+.fb{display:flex;gap:6px}
+.fb button{border:0;border-radius:10px;width:44px;height:44px;font:inherit;font-size:20px;background:var(--xb);color:var(--fg)}
+.fb .p1{background:var(--e);color:#fff}
+.nh{display:flex;align-items:center;gap:8px}
+.ed{border:0;background:var(--xb);color:var(--fg);border-radius:10px;width:40px;height:40px;font-size:16px}
+.nc .nr{margin-top:6px}
 </style>
+<style>nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:90px}#v-ext label{display:block;font-size:12px;color:var(--mut);margin-top:8px}#v-ext input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--card);color:var(--fg)}#v-ext textarea{width:100%;height:70px;font-size:11px}</style>
 </head>
 <body>
 <section id="v-prov"></section>
@@ -179,7 +206,8 @@ nav button.on{color:var(--fg);font-weight:700}
 <div class="tabs" id="tabs"></div>
 <main id="main"></main>
 </section>
-<nav><div><button data-v="p"><span>📅</span>Provas</button><button data-v="h"><span>🏫</span>Aulas</button><button data-v="a"><span>📋</span>Faltas</button><button data-v="n"><span>📊</span>Notas</button><button data-v="f"><span>🎓</span>Fluxograma</button></div></nav>
+<section id="v-ext" hidden></section>
+<nav><div><button data-v="p"><span>📅</span>Provas</button><button data-v="h"><span>🏫</span>Aulas</button><button data-v="a"><span>📋</span>Faltas</button><button data-v="n"><span>📊</span>Notas</button><button data-v="f"><span>🎓</span>Fluxograma</button><button data-v="x"><span>⚙️</span>Mais</button></div></nav>
 <dialog id="dsy"><div class="m">
 <b>Sincronização entre aparelhos</b>
 <p class="sub" id="syt"></p>
@@ -253,171 +281,171 @@ nav button.on{color:var(--fg);font-weight:700}
 <dialog id="dlg"><div class="m" id="dm"></div></dialog>
 <dialog id="di"><div class="m">
 <b>Importar histórico</b>
-<p class="sub">No SIGAA, abra o histórico escolar, copie o texto e cole aqui. Disciplinas aprovadas serão marcadas como cursadas (reprovadas e em curso são ignoradas).</p>
-<textarea id="ta" placeholder="Cole o histórico aqui"></textarea>
+<p class="sub">No SIGAA, abra o histórico escolar, copie o texto e cole aqui. Cole o texto do PDF inteiro. Só as aprovadas ficam como cursadas; reprovadas e trancadas não contam, e as matriculadas viram "cursando". As marcações atuais são substituídas.</p>
+<input type="file" id="pdf" accept="application/pdf" style="margin:8px 0"><textarea id="ta" placeholder="Ou cole o histórico aqui"></textarea>
 <div class="row" style="padding:10px 0 0"><button id="go">Importar</button><button class="s" id="cx">Fechar</button></div>
 <div class="sub" id="ir"></div></div></dialog>
 
 <script>
 const tcase=n=>n;
 const RAW=`#1
-ARQ011;Desenho Técnico I;68;
-ENG439;Introdução à Engenharia Elétrica;34;
-FIS121;Física Geral e Experimental I-E;102;
-MATA01;Geometria Analítica;68;
-MATA02;Cálculo A;102;
-QUI029;Química Geral;68;
+ARQ011;Desenho Técnico I;60;
+ENG439;Introdução à Engenharia Elétrica;30;
+FIS121;Física Geral e Experimental I-E;90;
+MATA01;Geometria Analítica;60;
+MATA02;Cálculo A;90;
+QUI029;Química Geral;60;
 #2
-ENGC26;Sistemas Lógicos;34;
-ENGC28;Laboratório Integrado I;34;
-ENGC29;Metodologia e Expressão do Conhecimento Científico;68;
-FIS122;Física Geral e Experimental II-E;102;FIS121 MATA01 MATA02
-MAT045;Processamento de Dados;68;
-MATA03;Cálculo B;102;MATA01 MATA02
-MATA07;Álgebra Linear A;68;MATA01
+ENGC26;Sistemas Lógicos;30;
+ENGC28;Laboratório Integrado I;30;
+ENGC29;Metodologia e Expressão do Conhecimento Científico;60;
+FIS122;Física Geral e Experimental II-E;90;FIS121 MATA01 MATA02
+MAT045;Processamento de Dados;60;
+MATA03;Cálculo B;90;MATA01 MATA02
+MATA07;Álgebra Linear A;60;MATA01
 #3
-ENGA47;Tecnologia dos Materiais para a Engenharia Elétrica;34;FIS122 QUI029
-ENGC30;Mecânica dos Sólidos;68;FIS121 MATA03
-ENGC32;Análise de Circuitos I;68;MATA03 MATA07
-ENGC37;Laboratório Integrado II;34;ENGC28
-FIS123;Física Geral e Experimental III-E;102;FIS122 MATA03
-MATA04;Cálculo C;102;MATA03
-MATA06;Cálculo E;102;MATA03 MATA07
+ENGA47;Tecnologia dos Materiais para a Engenharia Elétrica;30;FIS122 QUI029
+ENGC30;Mecânica dos Sólidos;60;FIS121 MATA03
+ENGC32;Análise de Circuitos I;60;MATA03 MATA07
+ENGC37;Laboratório Integrado II;30;ENGC28
+FIS123;Física Geral e Experimental III-E;90;FIS122 MATA03
+MATA04;Cálculo C;90;MATA03
+MATA06;Cálculo E;90;MATA03 MATA07
 #4
-ENG370;Fenômenos de Transportes I;68;FIS122 MATA04
-ENGC24;Sinais e Sistemas I;68;ENGC32 MATA04
-ENGC25;Análise de Circuitos II;68;ENGC32 FIS123 MATA04
-ENGC38;Laboratório Integrado III;68;ENGC37
-ENGC40;Eletrônica Digital;34;ENGC26 MAT045
-ENGC41;Dispositivos Eletrônicos;68;ENGA47 ENGC32
-FIS124;Física Geral e Experimental IV-E;102;FIS123
+ENG370;Fenômenos de Transportes I;60;FIS122 MATA04
+ENGC24;Sinais e Sistemas I;60;ENGC32 MATA04
+ENGC25;Análise de Circuitos II;60;ENGC32 FIS123 MATA04
+ENGC38;Laboratório Integrado III;60;ENGC37
+ENGC40;Eletrônica Digital;30;ENGC26 MAT045
+ENGC41;Dispositivos Eletrônicos;60;ENGA47 ENGC32
+FIS124;Física Geral e Experimental IV-E;90;FIS123
 #5
-ENGC33;Sinais e Sistemas II;68;ENGC24
-ENGC34;Eletromagnetismo Aplicado;68;FIS124 MATA06
-ENGC39;Laboratório Integrado IV;68;ENGC38
-ENGC50;Sistemas Microprocessados;68;ENGC40
-ENGC51;Eletrônica Analógica;68;ENGC24 ENGC25 ENGC41
-MAT174;Cálculo Numérico I;68;MAT045 MATA04
-MAT236;Métodos Estatísticos;68;MATA03
+ENGC33;Sinais e Sistemas II;60;ENGC24
+ENGC34;Eletromagnetismo Aplicado;60;FIS124 MATA06
+ENGC39;Laboratório Integrado IV;60;ENGC38
+ENGC50;Sistemas Microprocessados;60;ENGC40
+ENGC51;Eletrônica Analógica;60;ENGC24 ENGC25 ENGC41
+MAT174;Cálculo Numérico I;60;MAT045 MATA04
+MAT236;Métodos Estatísticos;60;MATA03
 #6
-ENGC27;Sistemas de Comunicações I;68;ENGC24 ENGC25 ENGC41 MAT236
-ENGC31;Termodinâmica;68;FIS122 MATA04
-ENGC35;Modelagem e Análise de Sistemas Dinâmicos;68;ENGC33
-ENGC36;Dispositivos de Conversão Eletromecânica I;68;ENGC25 FIS123
-ENGC44;Sistemas de Potência I;68;ENGC25
-ENGC46;Síntese de Circuitos;34;ENGC24 ENGC25
-ENGC53;Laboratório Integrado V;68;ENGC39
+ENGC27;Sistemas de Comunicações I;60;ENGC24 ENGC25 ENGC41 MAT236
+ENGC31;Termodinâmica;60;FIS122 MATA04
+ENGC35;Modelagem e Análise de Sistemas Dinâmicos;60;ENGC33
+ENGC36;Dispositivos de Conversão Eletromecânica I;60;ENGC25 FIS123
+ENGC44;Sistemas de Potência I;60;ENGC25
+ENGC46;Síntese de Circuitos;30;ENGC24 ENGC25
+ENGC53;Laboratório Integrado V;60;ENGC39
 #7
-ENG269;Ciências do Ambiente;68;
-ENG295;Higiene e Segurança no Trabalho;68;FIS122 QUI029
-ENGC42;Sistemas de Controle I;68;ENGC35
-ENGC43;Dispositivos de Conversão Eletromecânica II;68;ENGC31 ENGC35 ENGC36
-ENGC47;Transmissão e Distribuição de Energia Elétrica;68;ENGC34 ENGC36 ENGC44
-ENGC49;Medição de Grandezas Físicas;68;ENGC25 ENGC33 ENGC34 ENGC51
-ENGC54;Laboratório Integrado VI;68;ENGC53
+ENG269;Ciências do Ambiente;60;
+ENG295;Higiene e Segurança no Trabalho;60;FIS122 QUI029
+ENGC42;Sistemas de Controle I;60;ENGC35
+ENGC43;Dispositivos de Conversão Eletromecânica II;60;ENGC31 ENGC35 ENGC36
+ENGC47;Transmissão e Distribuição de Energia Elétrica;60;ENGC34 ENGC36 ENGC44
+ENGC49;Medição de Grandezas Físicas;60;ENGC25 ENGC33 ENGC34 ENGC51
+ENGC54;Laboratório Integrado VI;60;ENGC53
 #8
-ADM012;Administração;68;
-ENGC45;Instalações e Equipamentos Elétricos I;68;ENGC34 ENGC43 ENGC44
-ENGC48;Eletrônica de Potência;68;ENGC43 ENGC51
-ENGC52;Geração de Energia Elétrica;68;ENGC43 ENGC44
-ENGC55;Laboratório Integrado VII;34;ENGC54
-OPT1;Optativa 1 (68h);68;
+ADM012;Administração;60;
+ENGC45;Instalações e Equipamentos Elétricos I;60;ENGC34 ENGC43 ENGC44
+ENGC48;Eletrônica de Potência;60;ENGC43 ENGC51
+ENGC52;Geração de Energia Elétrica;60;ENGC43 ENGC44
+ENGC55;Laboratório Integrado VII;30;ENGC54
+OPT1;Optativa 1 (60h);60;
 #9
-DIR175;Legislação Social;68;
-ECO151;Economia e Finanças;68;MAT236
-ENGC56;Trabalho Final de Graduação;136;ENGC27 ENGC42 ENGC45 ENGC47 ENGC48 ENGC50 ENGC52 MAT174
-ENGC57;Estágio Curricular em Engenharia Elétrica;204;ENGC27 ENGC34 ENGC42 ENGC43 ENGC47 ENGC50 ENGC51
-OPT2;Optativa 2 (68h);68;
+DIR175;Legislação Social;60;
+ECO151;Economia e Finanças;60;MAT236
+ENGC56;Trabalho Final de Graduação;120;ENGC27 ENGC42 ENGC45 ENGC47 ENGC48 ENGC50 ENGC52 MAT174
+ENGC57;Estágio Curricular em Engenharia Elétrica;180;ENGC27 ENGC34 ENGC42 ENGC43 ENGC47 ENGC50 ENGC51
+OPT2;Optativa 2 (60h);60;
 #10
-OPT3;Optativa 3 (68h);68;
-OPT4;Optativa 4 (68h);68;
-OPT5;Optativa 5 (68h);68;
+OPT3;Optativa 3 (60h);60;
+OPT4;Optativa 4 (60h);60;
+OPT5;Optativa 5 (60h);60;
 #11
-ENG515;Controle de Processos;34;ENGC42
-ENG560;Controle Adaptativo;68;ENGC42
-ENG565;Controle Multivariável;68;ENGC42
-ENG570;Instrumentação Eletrônica;68;ENGC46 ENGC50 ENGC51
-ENG573;Processos Estocásticos;68;ENGC24 ENGC25 MAT236
-ENG574;Otimização;68;MAT174 MATA07
-ENG576;Projeto de Circuitos Integrados;68;ENGC51
-ENG577;Processamento Digital de Sinais;68;ENGC33 ENGC50
-ENG656;Controle de Sistemas a Eventos Discretos;68;ENGC42
-ENG658;Microeletrônica em Radiofrequência;68;ENGC51
-ENG730;Tópicos Especiais em Engenharia Elétrica I;68;ENGC25
-ENG735;Tópicos Especiais em Engenharia Elétrica II;68;ENGC25
-ENG740;Tópicos Especiais em Engenharia Elétrica III;68;ENGC25
-ENGA48;Sistemas de Comunicação sem Fio;68;ENGC27 ENGC34
-ENGA70;Modelagem e Identificação de Sistemas Dinâmicos;68;ENGC33
-ENGA71;Análise e Projeto de Sistemas de Controle;68;ENGC42
-ENGA72;Controle Robusto;68;ENGC42
-ENGA73;Sistemas Robóticos;68;ENGC42 ENGC43
-ENGA74;Inteligência Computacional;68;MAT045 MATA07
-ENGA76;Acionamento de Máquinas Elétricas;68;ENGC43
-ENGA77;Instrumentação Industrial;68;ENGC46 ENGC50 ENGC51
-ENGA78;Síntese de Circuitos Digitais;68;ENGC50
-ENGA79;Nanoengenharia: Processos e Caracterizações;68;ENGC25
-ENGA80;Análise de Sistemas de Energia Elétrica;68;ENGC44
-ENGA81;Dinâmica de Sistemas de Energia Elétrica;68;ENGC44
-ENGA82;Transitórios Eletromagnéticos em Sistemas de Potência;68;ENGC44
-ENGA83;Processamento Estatístico de Sinais;68;ENGC27
-ENGA84;Processadores Digitais de Sinais;68;ENGC50
-ENGA85;Tópicos Especiais em Engenharia Elétrica IV;68;ENGC25
-ENGA86;Tópicos Especiais em Engenharia Elétrica;68;ENGC25 ENGC40
-ENGC58;Eletrônica para Comunicações;68;ENGC34 ENGC42 ENGC46 ENGC51
-ENGC59;Instrumentação Eletrônica;68;ENGC46 ENGC50 ENGC51
-ENGC60;Circuitos e Dispositivos de Microondas;68;ENGC34 ENGC46 ENGC51
-ENGC61;Sistemas de Comunicações II;68;ENGC27
-ENGC62;Antenas e Propagação;68;ENGC27 ENGC34
-ENGC63;Processamento Digital de Sinais;68;ENGC33 ENGC50
-ENGC64;Sistemas de Controle II;68;ENGC35
-ENGC65;Sistemas de Controle III;68;ENGC42
-ENGC66;Introdução ao Controle de Processos Industriais;68;ENGC42
-ENGC67;Controle de Sistemas a Eventos Discretos;68;ENGC42
-ENGC68;Instalações e Equipamentos Elétricos II;68;ENGC45
-ENGC69;Tópicos em Transm. e Geração de Energia Elétrica;68;ENGC47 ENGC52
-ENGC70;Proteção de Sistemas Elétricos;68;ENGC44 ENGC50
-ENGC71;Sistemas de Potência II;68;ENGC47
-ENGC72;Sistemas de Potência III;68;ENGC47
-ENGC73;Engenharia Econômica;34;ECO151
-ENGC74;Acionamentos Elétricos;68;ENGC43 ENGC48
-ENGC75;Introdução à Robótica;68;ENGC42 ENGC50
-ENGC76;Qualidade da Energia;34;ENGC47
-ENGC77;Eficiência Energética;34;ENGC45 ENGC47
-ENGC78;Processos de Microeletrônica;68;ENGC51
-ENGC79;Projeto de Circuitos Integrados;68;ENGC51
-ENGD33;Programação em Tempo Real para Sistemas Embarcados;68;ENGC50
-ENGF99;Instrumentação e Automação Industrial I;68;ENGC49
-ENGG01;Instrumentação e Automação Industrial II;68;ENGC49
-ENGG02;Instrumentação e Automação Industrial III;68;ENGC49
-ENGG55;Redes Industriais;68;ENGC27
-ENGG56;Projeto de Circuitos Integrados Digitais;68;ENGC50
-ENGG58;Interface Homem-Máquina;68;ENGC50
-ENGK27;Tópicos Especiais em Sistemas de Energia Elétrica I;68;ENGC44
-ENGK28;Tópicos Especiais em Sistemas de Energia Elétrica II;68;ENGC44
-ENGK29;Tópicos Especiais em Sistemas de Energia Elétrica III;68;ENGC44
-ENGK30;Tópicos Especiais em Sistemas de Energia Elétrica IV;68;ENGC44
-ENGK31;Tópicos Especiais em Sistemas de Energia Elétrica V;68;ENGC44
-ENGK32;Tópicos Especiais em Sistemas de Comunicações I;68;ENGC27
-ENGK33;Tópicos Especiais em Sistemas de Comunicações II;68;ENGC27
-ENGK34;Tópicos Especiais em Sistemas de Comunicações III;68;ENGC27
-ENGK35;Tópicos Especiais em Sistemas de Comunicações IV;68;ENGC27
-ENGK36;Tópicos Especiais em Sistemas de Comunicações V;68;ENGC27
-ENGK37;Tópicos Especiais em Sistemas de Controle e Automação I;68;ENGC35
-ENGK38;Tópicos Especiais em Sistemas de Controle e Automação II;68;ENGC35
-ENGK39;Tópicos Especiais em Sistemas de Controle e Automação III;68;ENGC35
-ENGK40;Tópicos Especiais em Sistemas de Controle e Automação IV;68;ENGC35
-ENGK41;Tópicos Especiais em Sistemas de Controle e Automação V;68;ENGC35
-ENGK42;Tópicos Especiais em Sistemas Eletrônicos I;68;ENGC40 ENGC51
-ENGK43;Tópicos Especiais em Sistemas Eletrônicos II;68;ENGC40 ENGC51
-ENGK44;Tópicos Especiais em Sistemas Eletrônicos III;68;ENGC40 ENGC51
-ENGK45;Tópicos Especiais em Sistemas Eletrônicos IV;68;ENGC40 ENGC51
-ENGK46;Tópicos Especiais em Sistemas Eletrônicos V;68;ENGC40 ENGC51
-ENGL74;Circuitos Planares em Radiofrequência;68;ENGC25
-ENGL75;Engenharia de Planejamento de Redes e Sistemas;68;
-ENGL76;Comunicações Ópticas: Dispositivos e Sistemas;68;
-ENGL77;Eletromagnetismo Computacional;68;ENGC34
-ENGM92;Introdução às Práticas de Automação Industrial;68;ENGC33
-LETE46;Libras - Língua Brasileira de Sinais;34;`;
+ENG515;Controle de Processos;30;ENGC42
+ENG560;Controle Adaptativo;60;ENGC42
+ENG565;Controle Multivariável;60;ENGC42
+ENG570;Instrumentação Eletrônica;60;ENGC46 ENGC50 ENGC51
+ENG573;Processos Estocásticos;60;ENGC24 ENGC25 MAT236
+ENG574;Otimização;60;MAT174 MATA07
+ENG576;Projeto de Circuitos Integrados;60;ENGC51
+ENG577;Processamento Digital de Sinais;60;ENGC33 ENGC50
+ENG656;Controle de Sistemas a Eventos Discretos;60;ENGC42
+ENG658;Microeletrônica em Radiofrequência;60;ENGC51
+ENG730;Tópicos Especiais em Engenharia Elétrica I;60;ENGC25
+ENG735;Tópicos Especiais em Engenharia Elétrica II;60;ENGC25
+ENG740;Tópicos Especiais em Engenharia Elétrica III;60;ENGC25
+ENGA48;Sistemas de Comunicação sem Fio;60;ENGC27 ENGC34
+ENGA70;Modelagem e Identificação de Sistemas Dinâmicos;60;ENGC33
+ENGA71;Análise e Projeto de Sistemas de Controle;60;ENGC42
+ENGA72;Controle Robusto;60;ENGC42
+ENGA73;Sistemas Robóticos;60;ENGC42 ENGC43
+ENGA74;Inteligência Computacional;60;MAT045 MATA07
+ENGA76;Acionamento de Máquinas Elétricas;60;ENGC43
+ENGA77;Instrumentação Industrial;60;ENGC46 ENGC50 ENGC51
+ENGA78;Síntese de Circuitos Digitais;60;ENGC50
+ENGA79;Nanoengenharia: Processos e Caracterizações;60;ENGC25
+ENGA80;Análise de Sistemas de Energia Elétrica;60;ENGC44
+ENGA81;Dinâmica de Sistemas de Energia Elétrica;60;ENGC44
+ENGA82;Transitórios Eletromagnéticos em Sistemas de Potência;60;ENGC44
+ENGA83;Processamento Estatístico de Sinais;60;ENGC27
+ENGA84;Processadores Digitais de Sinais;60;ENGC50
+ENGA85;Tópicos Especiais em Engenharia Elétrica IV;60;ENGC25
+ENGA86;Tópicos Especiais em Engenharia Elétrica;60;ENGC25 ENGC40
+ENGC58;Eletrônica para Comunicações;60;ENGC34 ENGC42 ENGC46 ENGC51
+ENGC59;Instrumentação Eletrônica;60;ENGC46 ENGC50 ENGC51
+ENGC60;Circuitos e Dispositivos de Microondas;60;ENGC34 ENGC46 ENGC51
+ENGC61;Sistemas de Comunicações II;60;ENGC27
+ENGC62;Antenas e Propagação;60;ENGC27 ENGC34
+ENGC63;Processamento Digital de Sinais;60;ENGC33 ENGC50
+ENGC64;Sistemas de Controle II;60;ENGC35
+ENGC65;Sistemas de Controle III;60;ENGC42
+ENGC66;Introdução ao Controle de Processos Industriais;60;ENGC42
+ENGC67;Controle de Sistemas a Eventos Discretos;60;ENGC42
+ENGC68;Instalações e Equipamentos Elétricos II;60;ENGC45
+ENGC69;Tópicos em Transm. e Geração de Energia Elétrica;60;ENGC47 ENGC52
+ENGC70;Proteção de Sistemas Elétricos;60;ENGC44 ENGC50
+ENGC71;Sistemas de Potência II;60;ENGC47
+ENGC72;Sistemas de Potência III;60;ENGC47
+ENGC73;Engenharia Econômica;30;ECO151
+ENGC74;Acionamentos Elétricos;60;ENGC43 ENGC48
+ENGC75;Introdução à Robótica;60;ENGC42 ENGC50
+ENGC76;Qualidade da Energia;30;ENGC47
+ENGC77;Eficiência Energética;30;ENGC45 ENGC47
+ENGC78;Processos de Microeletrônica;60;ENGC51
+ENGC79;Projeto de Circuitos Integrados;60;ENGC51
+ENGD33;Programação em Tempo Real para Sistemas Embarcados;60;ENGC50
+ENGF99;Instrumentação e Automação Industrial I;60;ENGC49
+ENGG01;Instrumentação e Automação Industrial II;60;ENGC49
+ENGG02;Instrumentação e Automação Industrial III;60;ENGC49
+ENGG55;Redes Industriais;60;ENGC27
+ENGG56;Projeto de Circuitos Integrados Digitais;60;ENGC50
+ENGG58;Interface Homem-Máquina;60;ENGC50
+ENGK27;Tópicos Especiais em Sistemas de Energia Elétrica I;60;ENGC44
+ENGK28;Tópicos Especiais em Sistemas de Energia Elétrica II;60;ENGC44
+ENGK29;Tópicos Especiais em Sistemas de Energia Elétrica III;60;ENGC44
+ENGK30;Tópicos Especiais em Sistemas de Energia Elétrica IV;60;ENGC44
+ENGK31;Tópicos Especiais em Sistemas de Energia Elétrica V;60;ENGC44
+ENGK32;Tópicos Especiais em Sistemas de Comunicações I;60;ENGC27
+ENGK33;Tópicos Especiais em Sistemas de Comunicações II;60;ENGC27
+ENGK34;Tópicos Especiais em Sistemas de Comunicações III;60;ENGC27
+ENGK35;Tópicos Especiais em Sistemas de Comunicações IV;60;ENGC27
+ENGK36;Tópicos Especiais em Sistemas de Comunicações V;60;ENGC27
+ENGK37;Tópicos Especiais em Sistemas de Controle e Automação I;60;ENGC35
+ENGK38;Tópicos Especiais em Sistemas de Controle e Automação II;60;ENGC35
+ENGK39;Tópicos Especiais em Sistemas de Controle e Automação III;60;ENGC35
+ENGK40;Tópicos Especiais em Sistemas de Controle e Automação IV;60;ENGC35
+ENGK41;Tópicos Especiais em Sistemas de Controle e Automação V;60;ENGC35
+ENGK42;Tópicos Especiais em Sistemas Eletrônicos I;60;ENGC40 ENGC51
+ENGK43;Tópicos Especiais em Sistemas Eletrônicos II;60;ENGC40 ENGC51
+ENGK44;Tópicos Especiais em Sistemas Eletrônicos III;60;ENGC40 ENGC51
+ENGK45;Tópicos Especiais em Sistemas Eletrônicos IV;60;ENGC40 ENGC51
+ENGK46;Tópicos Especiais em Sistemas Eletrônicos V;60;ENGC40 ENGC51
+ENGL74;Circuitos Planares em Radiofrequência;60;ENGC25
+ENGL75;Engenharia de Planejamento de Redes e Sistemas;60;
+ENGL76;Comunicações Ópticas: Dispositivos e Sistemas;60;
+ENGL77;Eletromagnetismo Computacional;60;ENGC34
+ENGM92;Introdução às Práticas de Automação Industrial;60;ENGC33
+LETE46;Libras - Língua Brasileira de Sinais;30;`;
 const C=[];let SEM=0;
 RAW.trim().split("\n").forEach(l=>{if(l[0]=="#"){SEM=+l.slice(1);return}const[a,b,c,d]=l.split(";");C.push([a,b,SEM,d?d.split(" "):[],+c])});
 const DEF=[];
@@ -440,7 +468,7 @@ const st=c=>{if(done.has(c[0]))return"d";if(CURS.has(c[0]))return"u";const m=mis
 const LAY=[["d","Cursadas","--g"],["u","Cursando","--p"],["n","Próximas","--t"],["a","Posso cursar","--b"],["b","Bloqueadas","--x"],["o","Optativas","--e"]];
 function render(){
  CURS=curs();
- const G=C.filter(c=>c[2]<=10),n=G.filter(c=>done.has(c[0])).length,cnt={},hd=G.filter(c=>done.has(c[0])).reduce((a,c)=>a+c[4],0),ht=G.reduce((a,c)=>a+c[4],0);
+ const G=C.filter(c=>c[2]<=10),n=G.filter(c=>done.has(c[0])).length,cnt={},hd=G.filter(c=>done.has(c[0])&&!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0),ht=G.filter(c=>!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0);
  G.forEach(c=>{const k=st(c);cnt[k]=(cnt[k]||0)+1});cnt.o=C.length-G.length;
  $("pb").style.width=(100*hd/ht)+"%";
  $("ps").textContent=n+" de "+G.length+" disciplinas • "+hd+"h de "+ht+"h • "+(cnt.u||0)+" cursando agora";
@@ -462,6 +490,7 @@ $("main").onclick=e=>{
  const c=by[b.dataset.c],d=done.has(c[0]),p=c[3]||[],cu=CURS.has(c[0]);
  $("dm").innerHTML=`<b>${c[0]}</b><p style="margin:4px 0 10px">${c[1]}</p>`+
   (p.length?`<div class="sub">Pré-requisitos:</div><p style="margin:4px 0 12px">${p.map(x=>(done.has(x)?"✓ ":CURS.has(x)?"… ":"✗ ")+x).join("<br>")}</p>`:`<div class="sub" style="margin-bottom:12px">Sem pré-requisitos listados.</div>`)+
+  ((HIST[c[0]]||[]).length?`<div class="sub">Histórico:</div><p style="margin:4px 0 12px">${HIST[c[0]].map(x=>x.s+(x.p?" • "+x.p:"")+" • "+(SITN[x.t]||x.t)+(x.n?" ("+x.n+")":"")).join("<br>")}</p>`:"")+
   `<div style="display:flex;flex-direction:column;gap:8px"><button class="p" id="tg">${d?"Desmarcar como cursada":"Marcar como cursada"}</button>${d?"":`<button class="p" id="tc" style="background:var(--p);color:#fff">${cu?"Não estou cursando":"Estou cursando neste semestre"}</button>`}<button class="p" style="background:var(--xb);color:var(--fg)" id="cl">Fechar</button></div>`;
  $("dlg").showModal();
  $("tg").onclick=()=>{if(d)done.delete(c[0]);else{done.add(c[0]);delete CM[c[0]];saveCM()}save();$("dlg").close();render()};
@@ -470,15 +499,56 @@ $("main").onclick=e=>{
 };
 $("imp").onclick=()=>{$("ir").textContent="";$("di").showModal()};
 $("cx").onclick=()=>$("di").close();
-$("go").onclick=()=>{
+const KHI="fluxo_hist_v1";
+let HIST={};
+try{HIST=JSON.parse(localStorage.getItem(KHI)||"{}")}catch(e){}
+const saveHI=()=>{try{localStorage.setItem(KHI,JSON.stringify(HIST))}catch(e){}};
+const SITN={APR:"Aprovado",REP:"Reprovado",REPF:"Reprovado por falta",REPMF:"Reprovado por média e falta",TRANC:"Trancado",MATR:"Matriculado",CANC:"Cancelado",DISP:"Dispensado",CUMP:"Cumpriu",INCORP:"Incorporado",TRANS:"Transferido"};
+const OKS=["APR","CUMP","DISP","INCORP"];
+function parseHist(txt){
  const idx={};C.forEach(c=>idx[nz(c[0])]=c[0]);
- let k=0;
- $("ta").value.toUpperCase().split(/\r?\n/).forEach(l=>{
-  if(/REP|MATR|TRANC|CANC|DESIST/.test(l))return;
-  (l.match(/\b[A-Z]{3,4}\d{2,3}\b/g)||[]).forEach(x=>{const i=idx[nz(x)];if(i&&!done.has(i)){done.add(i);k++}});
+ const res=code=>{let k=nz(code);if(idx[k])return idx[k];k=nz(code.replace(/[A-Z]$/,""));return idx[k]||null};
+ const t=txt.replace(/\s+/g," ").toUpperCase();
+ const cut=t.search(/OBRIGAT[ÓO]RIOS PENDENTES/),rows=cut>0?t.slice(0,cut):t;
+ const SIT="(APR|REPMF|REPF|REP|TRANC|MATR|CANC|DISP|CUMP|INCORP|TRANS)",NO="(\\d+(?:[.,]\\d+)?|--)",TP="(?:(?:OB|OP|EB|EP|LV|EC) )?";
+ const reA=new RegExp("(\\d{4}\\.\\d) ([^()]{0,170}?)\\((\\d+)H\\) "+TP+"([A-Z]{2,5}\\d{2,4}[A-Z]?) (\\d+) "+NO+" "+SIT+"\\b","g");
+ const reB=new RegExp("(\\d{4}\\.\\d) "+TP+"([A-Z]{2,5}\\d{2,4}[A-Z]?) [^()]{0,170}?(\\d+) "+NO+" "+SIT+"\\b","g");
+ const ra=[...rows.matchAll(reA)].map(x=>({s:x[1],c:x[4],n:x[6],t:x[7]})),rb=[...rows.matchAll(reB)].map(x=>({s:x[1],c:x[2],n:x[4],t:x[5]}));
+ const L=rb.length>ra.length?rb:ra;
+ const PART={FISD36:"FIS121",FISD42:"FIS121",FISD34:"FIS122",FISD41:"FIS122",FISD37:"FIS123",FISD40:"FIS123",FISD38:"FIS124",FISD39:"FIS124"};
+ const H={},unk=new Set(),pok=new Set();let n=0;
+ L.forEach(x=>{
+  n++;const base=x.c.replace(/[A-Z]$/,"");let code=res(x.c),p="";
+  if(!code&&PART[base]){code=PART[base];p=base}
+  if(!code){unk.add(x.c);return}
+  if(p&&OKS.includes(x.t))pok.add(p);
+  (H[code]=H[code]||[]).push({s:x.s,n:x.n=="--"?"":x.n.replace(",","."),t:x.t,p});
  });
- save();render();$("ir").textContent=k+" disciplinas marcadas. Confira o resultado.";
+ const eq=[];
+ [...t.matchAll(/CUMPRIU ([A-Z]{2,5}\d{2,4}) -/g)].forEach(x=>{if(PART[x[1]])pok.add(x[1]);else{const c=res(x[1]);if(c)eq.push(c)}});
+ Object.keys(PART).forEach(p=>{const c=PART[p];if(!eq.includes(c)&&Object.keys(PART).filter(q=>PART[q]==c).every(q=>pok.has(q)))eq.push(c)});
+ return{H,n,eq,unk:[...unk]};
+}
+$("go").onclick=()=>{
+ const r=parseHist($("ta").value);
+ if(!r.n){$("ir").textContent="Não encontrei linhas de disciplina nesse texto. Copie a página do histórico escolar inteira (o texto do PDF) e cole de novo.";return}
+ const nd=new Set(),nc={};
+ Object.entries(r.H).forEach(([c,l])=>{
+  if(l.some(x=>OKS.includes(x.t)))nd.add(c);
+  else{const u=l[l.length-1];if(u.t=="MATR")nc[c]=1}
+ });
+ r.eq.forEach(c=>nd.add(c));
+ done=nd;CM={};Object.keys(nc).forEach(c=>{if(!done.has(c))CM[c]=1});
+ HIST=r.H;
+ save();saveCM();saveHI();render();
+ let ap=0,rp=0,tr=0,mt=0;
+ Object.values(r.H).forEach(l=>l.forEach(x=>{if(OKS.includes(x.t))ap++;else if(/^REP/.test(x.t))rp++;else if(x.t=="TRANC")tr++;else if(x.t=="MATR")mt++}));
+ $("ir").textContent="Pronto: "+done.size+" disciplinas cursadas e "+Object.keys(CM).length+" em andamento. No histórico: "+ap+" aprovações, "+rp+" reprovações, "+tr+" trancamentos, "+mt+" matrículas em curso."+(r.unk.length?" Não achei no fluxograma: "+r.unk.join(", ")+".":"")+" As marcações anteriores foram substituídas.";
 };
+$("pdf").onchange=async e=>{const f=e.target.files[0];if(!f)return;$("ir").textContent="Lendo PDF…";
+ try{if(!window.pdfjsLib){await new Promise((r,j)=>{const x=document.createElement("script");x.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";x.onload=r;x.onerror=j;document.head.appendChild(x)});pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}
+ const p=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let t="";for(let i=1;i<=p.numPages;i++){const c=await(await p.getPage(i)).getTextContent();t+=c.items.map(x=>x.str).join(" ")+"\n"}
+ $("ta").value=t;$("go").click()}catch(x){$("ir").textContent="Não consegui ler o PDF. Copie o texto dele e cole abaixo."}};
 $("rst").onclick=()=>{if(confirm("Desmarcar todas as matérias cursadas e as marcadas como cursando?")){done=new Set(DEF);CM={};save();saveCM();render()}};
 const KE="fluxo_exams_v1";
 let EX=[],cal=new Date(),sel=null,edId=null;
@@ -497,15 +567,16 @@ const item=e=>{const n=dd(e.date);return `<button class="ev${n>=0&&n<=3?" u":""}
 $("dl").innerHTML=C.map(c=>`<option value="${c[0]} – ${c[1]}">`).join("");
 function renderP(){
  const t=iso(td()),up=EX.filter(e=>e.date>=t).sort(srt),pa=EX.filter(e=>e.date<t).sort(srt).reverse();
- let h=`<div class="top"><h1>Provas</h1><button class="add" id="ad">+ Adicionar</button></div><div class="row" style="padding:0 14px 4px"><button class="s" id="sy">${syLabel()}</button></div>`;
- if(up[0]){const e=up[0];h+=`<div class="next" data-e="${e.id}"><small>PRÓXIMA PROVA</small><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}</span><em>${rel(e.date)}</em></div>`}
- h+=`<h2>PRÓXIMAS</h2>`+(up.length?`<div class="list">${up.map(item).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhuma prova cadastrada. Toque em "+ Adicionar".</p>`);
+ let h=`<div class="top"><h1>Provas</h1><div class="tb"><button class="ic" id="sy">${syIcon()}</button><button class="add" id="ad">+ Adicionar</button></div></div>`;
+ if(up[0]){const e=up[0];h+=`<div class="next sm" data-e="${e.id}"><div><small>PRÓXIMA PROVA</small><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}</span></div><em>${rel(e.date)}</em></div>`}
+ else h+=`<p class="sub" style="padding:0 14px;margin:0 0 6px">Nenhuma prova futura. Toque em "+ Adicionar".</p>`;
  const y=cal.getFullYear(),m=cal.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
  let g="";for(let i=0;i<f;i++)g+="<i></i>";
  for(let d=1;d<=n;d++){const s=iso(new Date(y,m,d)),c=EX.filter(e=>e.date==s).length;
   g+=`<button class="day${s==t?" t":""}${s==sel?" s":""}" data-d="${s}">${d}${c?`<u>${"●".repeat(Math.min(c,3))}</u>`:""}</button>`}
- h+=`<h2>CALENDÁRIO</h2><div class="cal"><div class="ch"><button id="pm">‹</button><b>${MN[m]} ${y}</b><button id="nm">›</button></div><div class="wd">${WD.map(w=>`<span>${w[0].toUpperCase()}</span>`).join("")}</div><div class="dg">${g}</div></div>`;
+ h+=`<div class="cal" style="margin-top:10px"><div class="ch"><button id="pm">‹</button><b>${MN[m]} ${y}</b><button id="nm">›</button></div><div class="wd">${WD.map(w=>`<span>${w[0].toUpperCase()}</span>`).join("")}</div><div class="dg">${g}</div></div>`;
  if(sel){const l=EX.filter(e=>e.date==sel).sort(srt);h+=`<h2>${fmt(sel).toUpperCase()}</h2><div class="list">${l.length?l.map(item).join(""):'<p class="sub" style="margin:0">Sem provas neste dia.</p>'}</div>`}
+ if(up.length>1)h+=`<h2>DEPOIS</h2><div class="list">${up.slice(1).map(item).join("")}</div>`;
  if(pa.length)h+=`<h2>ANTERIORES</h2><div class="list past">${pa.map(item).join("")}</div>`;
  $("v-prov").innerHTML=h;
 }
@@ -545,13 +616,13 @@ const saveA=()=>{try{localStorage.setItem(KA,JSON.stringify(AB))}catch(e){}};
 const lim=ch=>Math.floor(ch*0.25/2);
 const pl=(n,a,b)=>n+" "+(n==1?a:b);
 function renderA(){
- let h=`<div class="top"><h1>Faltas</h1><button class="add" id="aa">+ Matéria</button></div><p class="sub" style="padding:0 14px;margin:0 0 12px">Cada aula de 1h40 conta como 1 falta. Limite: 25% da carga horária.</p>`;
+ let h=`<div class="top"><h1>Faltas</h1><button class="add" id="aa">+ Matéria</button></div>`;
  h+=AB.length?AB.map(a=>{
   const L=lim(a.ch),r=L?a.f/L:(a.f?2:0),over=a.f>L,at=a.f==L,
   c=over||at?"var(--r)":r>=.7?"var(--e)":"var(--g)",
   pct=(a.f*2/a.ch*100).toFixed(1).replace(".",","),
-  msg=over?`Passou ${pl(a.f-L,"falta","faltas")} do limite — reprovação por falta`:at?"No limite — não pode faltar mais":`Ainda pode faltar ${pl(L-a.f,"vez","vezes")}`;
-  return `<div class="ab"><div class="hd"><b>${esc(a.name)}</b><button data-ae="${a.id}">Editar</button></div><div class="n" style="color:${c}">${a.f} <small>de ${L} faltas permitidas</small></div><div class="pbar"><i style="width:${Math.min(100,r*100)}%;background:${c}"></i></div><div class="msg" style="color:${c}">${msg}</div><div class="sub">${pct}% de faltas • ${a.ch}h</div><div class="ct"><button class="m1" data-ad="${a.id}">−1</button><button class="p1" data-au="${a.id}">+ Falta</button></div></div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria".</p>`;
+  msg=over?`Passou ${pl(a.f-L,"falta","faltas")} do limite`:at?"No limite — não pode faltar":`Pode faltar mais ${L-a.f}`;
+  return `<div class="fc"><div class="fi" data-ae="${a.id}"><div class="f1"><b>${esc(a.name)}</b><span style="color:${c}">${a.f}/${L}</span></div><div class="pbar"><i style="width:${Math.min(100,r*100)}%;background:${c}"></i></div><div class="f2" style="color:${c}">${msg} <small>• ${pct}% de faltas</small></div></div><div class="fb"><button data-ad="${a.id}">−</button><button class="p1" data-au="${a.id}">+</button></div></div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria". Cada aula de 1h40 conta como 1 falta, com limite de 25%.</p>`;
  $("v-abs").innerHTML=h;
 }
 $("v-abs").onclick=e=>{
@@ -590,25 +661,23 @@ function calc(m){
  sw=gd.reduce((s,a)=>s+a.w,0),sp=gd.reduce((s,a)=>s+a.g*a.w,0),rw=W-sw;
  return {acc:sp/W,part:sw?sp/sw:null,need:rw>1e-9?(m.meta*W-sp)/rw:null,done:rw<=1e-9};
 }
+const NOPEN=new Set();
 function renderN(){
- let h=`<div class="top"><h1>Notas</h1><button class="add" id="na">+ Matéria</button></div><p class="sub" style="padding:0 14px;margin:0 0 12px">Defina as avaliações e pesos em "Editar" e digite as notas (0 a 10).</p>`;
+ let h=`<div class="top"><h1>Notas</h1><button class="add" id="na">+ Matéria</button></div>`;
  h+=NT.length?NT.map(m=>{
   const k=calc(m);let msg,c="var(--fg)";
   if(k.done){const ok=k.acc>=m.meta-1e-9;msg=`Média final ${f2(k.acc)} — ${ok?"meta atingida":"abaixo da meta"}`;c=ok?"var(--g)":"var(--r)"}
   else if(k.need<=0){msg="Meta já garantida";c="var(--g)"}
-  else if(k.need>10){msg=`Meta inalcançável: precisaria de ${f2(k.need)} nas restantes`;c="var(--r)"}
-  else{msg=`Precisa de ${f2(Math.ceil(k.need*100)/100)} em média nas avaliações restantes`;if(k.need>=8)c="var(--e)"}
-  return `<div class="ab"><div class="hd"><b>${esc(m.name)}</b><button data-ne="${m.id}">Editar</button></div>
-  <div class="n">${k.part==null?"—":f2(k.part)} <small>média parcial • meta ${cm(m.meta)}</small></div>
-  <div class="pbar"><i style="width:${Math.min(100,k.acc/m.meta*100)}%;background:${c}"></i></div>
-  <div class="msg" style="color:${c}">${msg}</div>
-  <div class="sub" style="margin-bottom:6px">Pontos acumulados: ${f2(k.acc)} de ${cm(m.meta)}</div>
-  ${m.av.map((a,i)=>`<div class="nr"><span>${esc(a.n)} <small>peso ${cm(a.w)}</small></span><input inputmode="decimal" placeholder="nota" value="${a.g==null?"":cm(a.g)}" data-g="${m.id}:${i}"></div>`).join("")}</div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria".</p>`;
+  else if(k.need>10){msg=`Meta inalcançável (precisa de ${f2(k.need)})`;c="var(--r)"}
+  else{msg=`Precisa de ${f2(Math.ceil(k.need*100)/100)} nas restantes`;if(k.need>=8)c="var(--e)"}
+  const op=NOPEN.has(m.id),lan=m.av.filter(a=>a.g!=null).length;
+  return `<div class="nc"><div class="nh"><div class="ni" data-nt="${m.id}"><div class="f1"><b>${op?"▾":"▸"} ${esc(m.name)}</b><span style="color:${c}">${k.part==null?"—":f2(k.part)}</span></div><div class="pbar"><i style="width:${Math.min(100,k.acc/m.meta*100)}%;background:${c}"></i></div><div class="f2" style="color:${c}">${msg} <small>• ${lan}/${m.av.length} notas • meta ${cm(m.meta)}</small></div></div><button class="ed" data-ne="${m.id}">✎</button></div>${op?m.av.map((a,i)=>`<div class="nr"><span>${esc(a.n)} <small>peso ${cm(a.w)}</small></span><input inputmode="decimal" placeholder="nota" value="${a.g==null?"":cm(a.g)}" data-g="${m.id}:${i}"></div>`).join(""):""}</div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria". Toque numa matéria para lançar as notas.</p>`;
  $("v-not").innerHTML=h;
 }
 $("v-not").onclick=e=>{
  if(e.target.closest("#na"))return openN();
- const b=e.target.closest("[data-ne]");if(b)openN(b.dataset.ne);
+ let b=e.target.closest("[data-ne]");if(b)return openN(b.dataset.ne);
+ b=e.target.closest("[data-nt]");if(b){const i=b.dataset.nt;NOPEN.has(i)?NOPEN.delete(i):NOPEN.add(i);renderN()}
 };
 $("v-not").onchange=e=>{
  const t=e.target;if(!t.dataset.g)return;
@@ -658,7 +727,8 @@ const saveS=()=>{try{localStorage.setItem(KS,JSON.stringify(SA))}catch(e){}};
 const mon=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7));
 const p2=n=>String(n).padStart(2,"0");
 const addm=(t,m)=>{const[h,i]=t.split(":").map(Number),x=h*60+i+m;return p2(Math.floor(x/60)%24)+":"+p2(x%60)};
-const off=(c,date)=>SA.find(x=>x.date==date&&(x.name=="*"||x.name==c.name));
+const off=(c,date)=>SA.find(x=>x.date==date&&(x.name=="*"||x.name==c.name))||offAC(date);
+function offAC(d){if(d<ACAD.ini||d>ACAD.fim)return{reason:"Fora do semestre"};const f=ACAD.fer.find(x=>x[0]==d);return f?{reason:f[1]}:null}
 const cap=i=>WD[i][0].toUpperCase()+WD[i].slice(1);
 const dnames=d=>[...d].sort((a,b)=>(a+6)%7-(b+6)%7).map(cap).join(", ");
 const sh=d=>p2(d.getDate())+"/"+p2(d.getMonth()+1);
@@ -674,17 +744,17 @@ function weekH(t){
  const nd=CL.some(c=>c.days.includes(0))?7:6;
  let a=CL.length?Math.floor(Math.min(...CL.map(c=>mins(c.start)))/60):7,b=CL.length?Math.ceil(Math.max(...CL.map(c=>mins(c.end)))/60):18;
  if(b<=a)b=a+1;
- const PH=48,H=(b-a)*PH;
+ const PH=Math.max(26,Math.min(48,Math.floor((innerHeight-300)/(b-a)))),H=(b-a)*PH;
  let hx="<div></div>",cols="";
  for(let k=0;k<nd;k++){
   const d=new Date(wk.getFullYear(),wk.getMonth(),wk.getDate()+k),s=iso(d),hol=SA.some(x=>x.date==s&&x.name=="*");
   hx+=`<div class="${s==t?"t":""}">${cap(d.getDay())}<br>${p2(d.getDate())}</div>`;
   cols+=`<div class="col${hol?" hol":""}" style="height:${H}px">`+dayCl(d).map(c=>{
-   const x=off(c,s),top=(mins(c.start)-a*60)/60*PH,hh=Math.max(24,(mins(c.end)-mins(c.start))/60*PH-2);
+   const x=off(c,s),top=(mins(c.start)-a*60)/60*PH,hh=Math.max(22,(mins(c.end)-mins(c.start))/60*PH-2);
    return `<button class="bk${x?" off":""}" data-o="${c.id}|${s}" style="top:${top}px;height:${hh}px;${x?"":"background:"+bgc(c.name)}"><b>${esc(lab(c.name))}</b><small>${c.start}</small></button>`}).join("")+"</div>";
  }
  let hr="";for(let i=a;i<b;i++)hr+=`<span style="top:${(i-a)*PH+1}px">${p2(i)}h</span>`;
- return `<div class="wg" style="--n:${nd};--ph:${PH}px"><div class="wgh">${hx}</div><div class="wgb"><div class="hrs" style="height:${H}px">${hr}</div>${cols}</div></div>`+(CL.length?"":`<p class="sub" style="padding:10px 14px 0">Cadastre suas aulas em "+ Aula".</p>`);
+ return `<div class="wg" style="--n:${nd};--ph:${PH}px;margin-top:8px"><div class="wgh">${hx}</div><div class="wgb"><div class="hrs" style="height:${H}px">${hr}</div>${cols}</div></div>`+(CL.length?"":`<p class="sub" style="padding:10px 14px 0">Cadastre suas aulas em "+ Aula" ou importe do SIGAA (botão no fim da página).</p>`);
 }
 function monthH(t){
  const y=hm.getFullYear(),m=hm.getMonth(),f=(new Date(y,m,1).getDay()+6)%7,n=new Date(y,m+1,0).getDate();
@@ -693,18 +763,18 @@ function monthH(t){
   const dt=new Date(y,m,d),s=iso(dt),l=dayCl(dt),hol=SA.some(x=>x.date==s&&x.name=="*");
   g+=`<button class="mc${s==t?" t":""}${s==hsel?" s":""}${hol?" hol":""}" data-hd="${s}"><b>${d}</b>`+l.slice(0,3).map(c=>{const x=off(c,s);return `<i class="cc${x?" off":""}" style="${x?"":"background:"+bgc(c.name)}">${esc(lab(c.name))}</i>`}).join("")+(l.length>3?`<em>+${l.length-3}</em>`:"")+`</button>`;
  }
- let h=`<div class="wg"><div class="mw">${["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(x=>`<span>${x}</span>`).join("")}</div><div class="mg">${g}</div></div>`;
+ let h=`<div class="wg" style="margin-top:8px"><div class="mw">${["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"].map(x=>`<span>${x}</span>`).join("")}</div><div class="mg">${g}</div></div>`;
  if(hsel){const d=pd(hsel),l=dayCl(d);h+=`<div class="dh">${WD[d.getDay()].toUpperCase()} ${sh(d)}</div>`+(l.length?l.map(c=>clBtn(c,hsel)).join(""):`<p class="sub" style="padding:0 14px;margin:0">Sem aulas neste dia.</p>`)}
  return h;
 }
 function renderH(){
  const t=iso(td());
- let h=`<div class="top"><h1>Aulas</h1><button class="add" id="ha">+ Aula</button></div><div class="row" style="padding:0 14px"><button class="s" id="sg">⬇ Importar do SIGAA (turmas do semestre)</button></div><div class="seg">${[["w","Semana"],["m","Mês"],["l","Lista"]].map(x=>`<button data-hv="${x[0]}" class="${hv==x[0]?"on":""}">${x[1]}</button>`).join("")}</div>`;
+ let h=`<div class="top"><div class="seg" style="flex:1;margin:0 8px 0 0">${[["w","Semana"],["m","Mês"],["l","Lista"]].map(x=>`<button data-hv="${x[0]}" class="${hv==x[0]?"on":""}">${x[1]}</button>`).join("")}</div><button class="add" id="ha">+ Aula</button></div>`;
  if(hv=="m"){
-  h+=`<div class="wkh" style="margin-top:10px"><button id="hmp">‹</button><b>${MN[hm.getMonth()]} ${hm.getFullYear()}</b><button id="hmt">Hoje</button><button id="hmn">›</button></div>`+monthH(t);
+  h+=`<div class="wkh"><button id="hmp">‹</button><b>${MN[hm.getMonth()]} ${hm.getFullYear()}</b><button id="hmt">Hoje</button><button id="hmn">›</button></div>`+monthH(t);
  }else{
   const end=new Date(wk.getFullYear(),wk.getMonth(),wk.getDate()+6);
-  h+=`<div class="wkh" style="margin-top:10px"><button id="wp">‹</button><b>${sh(wk)} – ${sh(end)}</b><button id="wt">Hoje</button><button id="wn">›</button></div>`;
+  h+=`<div class="wkh"><button id="wp">‹</button><b>${sh(wk)} – ${sh(end)}</b><button id="wt">Hoje</button><button id="wn">›</button></div>`;
   if(hv=="w")h+=weekH(t);
   else{
    let any=false;
@@ -718,7 +788,7 @@ function renderH(){
  }
  const up=SA.filter(x=>x.date>=t).sort((a,b)=>a.date.localeCompare(b.date));
  h+=`<h2>DIAS SEM AULA</h2><div class="list">`+(up.length?up.map(x=>`<button class="ev u" data-z="${x.id}"><div><b>${x.name=="*"?"Todas as matérias":esc(x.name)}</b><span>${fmt(x.date)}${x.reason?" • "+esc(x.reason):""}</span></div><em>${rel(x.date)}</em></button>`).join(""):`<p class="sub" style="margin:0">Nenhum cadastrado.</p>`)+`</div><div class="row" style="padding:8px 14px 0"><button class="s" id="za">+ Sem aula</button></div>`;
- h+=`<h2>MINHAS AULAS</h2><div class="list">`+(CL.length?CL.map(c=>`<button class="ev" data-c="${c.id}"><div><b>${esc(c.name)}</b><span>${dnames(c.days)} • ${c.start}–${c.end}${c.room?" • "+esc(c.room):""}</span></div></button>`).join(""):`<p class="sub" style="margin:0">Nenhuma aula cadastrada.</p>`)+`</div>`;
+ h+=`<h2>MINHAS AULAS</h2><div class="list">`+(CL.length?CL.map(c=>`<button class="ev" data-c="${c.id}"><div><b>${esc(c.name)}</b><span>${dnames(c.days)} • ${c.start}–${c.end}${c.room?" • "+esc(c.room):""}</span></div></button>`).join(""):`<p class="sub" style="margin:0">Nenhuma aula cadastrada.</p>`)+`</div><div class="row" style="padding:10px 14px 0"><button class="s" id="sg">⬇ Importar do SIGAA (turmas do semestre)</button></div>`;
  $("v-hor").innerHTML=h;
 }
 $("v-hor").onclick=e=>{
@@ -781,30 +851,44 @@ $("zx").onclick=()=>$("dz").close();
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 let IMP=[];
 const BASE={M:420,T:780,N:1110},m2t=x=>p2(Math.floor(x/60))+":"+p2(x%60);
+const t2m=t=>{const[h,i]=t.split(":").map(Number);return h*60+i};
+const DIAS={domingo:0,segunda:1,"terça":2,terca:2,quarta:3,quinta:4,sexta:5,"sábado":6,sabado:6};
+const nn=x=>x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z0-9 ]/g," ").replace(/\s+/g," ").trim();
+const tcs=n=>nn(n).toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()).replace(/\s(De|Da|Do|Das|Dos|E|Em|Para|Com)(?=\s)/g,c=>c.toLowerCase());
 function parseSG(txt){
- const re=/\b([A-Z]{3,4}\d{2,3})\b/g,ix=[],seen=new Set(),out=[];let m;
- while(m=re.exec(txt))ix.push({code:m[1],i:m.index,e:re.lastIndex});
- ix.forEach((x,k)=>{
-  if(seen.has(x.code))return;seen.add(x.code);
-  const seg=txt.slice(x.e,k+1<ix.length?ix[k+1].i:txt.length),keys=new Set(),toks=[];
-  for(const t of seg.matchAll(/\b([1-7]{1,6})([MTN])([1-6]{1,6})\b/g)){
-   const sl=[...t[3]].map(Number),a=Math.min(...sl),b=Math.max(...sl),
-   days=[...new Set([...t[1]].map(d=>d==1?0:d-1))],start=m2t(BASE[t[2]]+(a-1)*50),end=m2t(BASE[t[2]]+b*50),key=days+start+end;
-   if(!keys.has(key)){keys.add(key);toks.push({days,start,end})}
-  }
-  const cur=C.find(c=>nz(c[0])==nz(x.code));
-  let nm=seg.replace(/^[\s\-–:.]+/,"").split(/\t|\r?\n|\s{2,}|\s-\s|\(|\bTurma\b|\b[1-7]{1,6}[MTN][1-6]{1,6}\b|\b\d{2,3}\s*h\b/i)[0].trim();
-  if(nm&&nm==nm.toUpperCase())nm=nm.toLowerCase().replace(/(^|\s)\S/g,c=>c.toUpperCase()).replace(/\s(De|Da|Do|Das|Dos|E|Em|Para|Com)(?=\s)/g,c=>c.toLowerCase());
-  if(cur&&!cur[1].startsWith("("))nm=cur[1];
-  const ch=seg.match(/(\d{2,3})\s*h\b/i)||seg.match(/carga hor[aá]ria[^\d]{0,15}(\d{2,3})/i);
-  out.push({on:toks.length>0,code:x.code,name:nm,ch:ch?+ch[1]:(cur&&cur[4]||68),toks});
+ const lines=txt.split(/\r?\n/).map(l=>l.trim()),out=[],byKey={};
+ const re=/(\S[^\n\t]*?)\s+-\s+(Domingo|Segunda|Terça|Terca|Quarta|Quinta|Sexta|Sábado|Sabado)\s+Hor[aá]rios\s+(\d{1,2}:\d{2})\s+às\s+(\d{1,2}:\d{2})/gi;
+ lines.forEach((ln,i)=>{
+  if(!/Hor[aá]rios\s+\d{1,2}:\d{2}\s+às/i.test(ln))return;
+  let j=i-1;while(j>=0&&!lines[j])j--;
+  let nm=j>=0?lines[j]:"";
+  const cm=nm.match(/^([A-Z]{3,5}\d{2,4})\s*[-–:]?\s*(.*)$/),code0=cm?cm[1]:"";
+  if(cm&&cm[2])nm=cm[2];
+  const blocks=[];let m;re.lastIndex=0;
+  while(m=re.exec(ln)){const p=m[3].padStart(5,"0"),q=m[4].padStart(5,"0");blocks.push({room:m[1].trim(),day:DIAS[m[2].toLowerCase()],a:t2m(p),b:t2m(q)})}
+  if(!blocks.length)return;
+  const cur=C.find(c=>(code0&&nz(c[0])==nz(code0))||nn(c[1])==nn(nm));
+  const key=cur?cur[0]:nn(nm);
+  let e=byKey[key];
+  if(!e){e=byKey[key]={on:true,code:cur?cur[0]:"",name:cur?cur[1]:tcs(nm),ch:0,slots:[],nb:0};out.push(e)}
+  blocks.forEach(x=>e.slots.push(x));
+ });
+ out.forEach(e=>{
+  const per={};e.slots.forEach(x=>(per[x.day+"|"+x.room]=per[x.day+"|"+x.room]||[]).push(x));
+  const mer=[];
+  Object.values(per).forEach(l=>{l.sort((x,y)=>x.a-y.a);let c=null;l.forEach(x=>{if(c&&c.b>=x.a)c.b=Math.max(c.b,x.b);else{c={day:x.day,room:x.room,a:x.a,b:x.b};mer.push(c)}})});
+  const g={};mer.forEach(x=>{const k=m2t(x.a)+"|"+m2t(x.b)+"|"+x.room;(g[k]=g[k]||{days:[],start:m2t(x.a),end:m2t(x.b),room:x.room,mins:x.b-x.a}).days.push(x.day)});
+  e.toks=Object.values(g);
+  const wk=mer.reduce((s,x)=>s+(x.b-x.a),0);
+  e.ch=wk?Math.round(wk/55)*15:(C.find(c=>c[0]==e.code)||[0,0,0,0,68])[4];
+  e.on=e.toks.length>0;
  });
  return out;
 }
 function listSG(){
- $("sgl").innerHTML=IMP.map((c,i)=>`<div class="pv"><div class="r1"><input type="checkbox" data-i="${i}" data-f="on"${c.on?" checked":""}><b>${esc(c.code)}</b><input data-i="${i}" data-f="name" value="${esc(c.name)}" placeholder="Nome"></div>
+ $("sgl").innerHTML=IMP.map((c,i)=>`<div class="pv"><div class="r1"><input type="checkbox" data-i="${i}" data-f="on"${c.on?" checked":""}><b>${esc(c.code||"—")}</b><input data-i="${i}" data-f="name" value="${esc(c.name)}" placeholder="Nome"></div>
  <div class="tk"><span>Carga horária</span><input data-i="${i}" data-f="ch" inputmode="numeric" value="${c.ch}" style="width:64px"><span>h</span></div>
- ${c.toks.length?c.toks.map((k,j)=>`<div class="tk"><span style="width:92px">${dnames(k.days)}</span><input type="time" data-i="${i}" data-j="${j}" data-f="start" value="${k.start}"><input type="time" data-i="${i}" data-j="${j}" data-f="end" value="${k.end}"></div>`).join(""):`<div class="tk">Sem horário encontrado</div>`}</div>`).join("");
+ ${c.toks.length?c.toks.map((k,j)=>`<div class="tk"><span style="width:92px">${dnames(k.days)}</span><input type="time" data-i="${i}" data-j="${j}" data-f="start" value="${k.start}"><input type="time" data-i="${i}" data-j="${j}" data-f="end" value="${k.end}"></div><div class="tk"><span style="width:92px">Sala</span><input data-i="${i}" data-j="${j}" data-f="room" value="${esc(k.room||"")}" placeholder="Sala"></div>`).join(""):`<div class="tk">Sem horário encontrado</div>`}</div>`).join("");
 }
 $("sgl").oninput=e=>{
  const t=e.target,c=IMP[+t.dataset.i],f=t.dataset.f;if(!c)return;
@@ -812,36 +896,92 @@ $("sgl").oninput=e=>{
  else c.toks[+t.dataset.j][f]=t.value;
 };
 function openSG(){$("sgt").value="";$("sge").textContent="";$("sg1").hidden=false;$("sg2").hidden=true;$("dsg").showModal()}
+let IMPEX=[];
+function parseEx(t){const o=[],re=/(\d{2})\/(\d{2})\/(\d{4})(?: \(\d+ dias?\))?\s+([^\n]+)\n\s*Avalia[çc][ãa]o:\s*([^\n]+)/g;let m;
+ while(m=re.exec(t)){const nm=m[4].trim(),c=C.find(k=>nn(k[1])==nn(nm));o.push({date:m[3]+"-"+m[2]+"-"+m[1],disc:c?c[0]+" – "+c[1]:nm,note:m[5].trim()})}return o}
 $("sgp").onclick=()=>{
- IMP=parseSG($("sgt").value);
- if(!IMP.length){$("sge").textContent="Não encontrei códigos de disciplina nesse texto. Confira se copiou a página certa.";return}
- $("sgi").textContent="Encontrei "+IMP.length+" disciplinas. Marque as que são deste semestre e confira nomes, carga horária e horários (calculados em blocos de 50 min: M1 = 07:00, T1 = 13:00, N1 = 18:30). Tudo pode ser editado depois.";
+ IMPEX=parseEx($("sgt").value);IMP=parseSG($("sgt").value);
+ if(!IMP.length){$("sge").textContent="Não encontrei turmas com horário nesse texto. Copie a página inicial do SIGAA (Ctrl+A) com a lista de Turmas do Semestre.";return}
+ $("sgi").textContent="Encontrei "+IMP.length+" turmas com horário e sala. Confira nomes, carga horária (estimada pelas horas semanais) e salas. Tudo pode ser editado depois.";
  listSG();$("sg1").hidden=true;$("sg2").hidden=false;
 };
 $("sgb").onclick=()=>{$("sg1").hidden=false;$("sg2").hidden=true};
 $("sgx").onclick=()=>$("dsg").close();
 $("sgc").onclick=()=>{
- let a=0,f=0,n=0;
+ let a=0,f=0,n=0;IMPEX.forEach(x=>{if(!EX.some(e=>e.date==x.date&&e.disc==x.disc)){EX.push({id:uid(),disc:x.disc,date:x.date,time:"",note:x.note});saveE();renderP()}});
  IMP.filter(c=>c.on&&c.name.trim()).forEach(c=>{
-  const name=c.code+" – "+c.name.trim();
-  c.toks.forEach(k=>{if(!CL.some(x=>x.name==name&&x.start==k.start&&x.days+""==k.days+"")){CL.push({id:uid(),name,days:k.days,start:k.start,end:k.end,room:""});a++}});
+  const name=(c.code?c.code+" – ":"")+c.name.trim();
+  c.toks.forEach(k=>{const ex=CL.find(x=>x.name==name&&x.start==k.start&&x.days+""==k.days+"");if(ex){if(k.room&&!ex.room){ex.room=k.room;a++}}else{CL.push({id:uid(),name,days:k.days,start:k.start,end:k.end,room:k.room||""});a++}});
   if(!AB.some(x=>x.name==name)){AB.push({id:uid(),name,ch:c.ch||68,f:0});f++}
   if(!NT.some(x=>x.name==name)){NT.push({id:uid(),name,meta:7,av:[1,2,3].map(i=>({n:"Av. "+i,w:1,g:null}))});n++}
  });
  saveH();saveA();saveN();renderH();renderA();renderN();
- $("sgi").textContent="Pronto! Adicionei "+a+" horários de aula, "+f+" matérias em Faltas e "+n+" em Notas. Edite o que precisar em cada aba.";
+ $("sgi").textContent="Pronto! Adicionei "+a+" horários/salas de aula, "+f+" matérias em Faltas e "+n+" em Notas. Edite o que precisar em cada aba.";
  $("sgl").innerHTML="";$("sgc").hidden=true;$("sgb").textContent="Fechar";$("sgb").onclick=()=>{$("dsg").close();$("sgc").hidden=false;$("sgb").textContent="Voltar";$("sgb").onclick=()=>{$("sg1").hidden=false;$("sg2").hidden=true}};
 };
 render();renderP();renderA();renderN();renderH();tab("p");
+
+const KAC="fluxo_acad_v1";
+let ACAD={ini:"2026-08-19",fim:"2026-12-19",fer:[["2026-10-12","Nossa Sra. Aparecida"],["2026-11-02","Finados"],["2026-11-20","Consciência Negra"],["2026-12-08","Dia da Cidade (Salvador)"]]};
+try{ACAD={...ACAD,...JSON.parse(localStorage.getItem(KAC)||"{}")}}catch(e){}
+const saveAC=()=>{try{localStorage.setItem(KAC,JSON.stringify(ACAD))}catch(e){}};
+let SIM=new Set(),DIP=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();DIP=e});
+try{const th=localStorage.getItem("fluxo_theme");if(th)document.documentElement.dataset.theme=th}catch(e){}
+const _tab=tab;tab=function(v){_tab(v);$("v-ext").hidden=v!="x";if(v=="x")renderX()};
+function icsDL(){
+ const z=n=>String(n).padStart(2,"0"),stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",ymd=x=>x.replace(/-/g,""),cl=x=>String(x).replace(/[\n,;]/g," "),
+ al=t=>["BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Lembrete","TRIGGER:"+t,"END:VALARM"],L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Meu Fluxograma//PT","CALSCALE:GREGORIAN"],t6=s=>s.replace(":","")+"00";
+ EX.forEach(e=>{L.push("BEGIN:VEVENT","UID:ex-"+e.id+"@fluxo","DTSTAMP:"+stamp,"SUMMARY:Prova: "+cl(e.disc));
+  if(e.time){const[h,i]=e.time.split(":").map(Number);L.push("DTSTART:"+ymd(e.date)+"T"+t6(e.time),"DTEND:"+ymd(e.date)+"T"+z((h+2)%24)+z(i)+"00",...al("-P7D"),...al("-P1D"),...al("-PT2H"))}
+  else L.push("DTSTART;VALUE=DATE:"+ymd(e.date),"DTEND;VALUE=DATE:"+ymd(iso(new Date(pd(e.date).getTime()+864e5))),...al("-P7D"),...al("-PT15H"));
+  if(e.note)L.push("DESCRIPTION:"+cl(e.note));L.push("END:VEVENT")});
+ CL.forEach(c=>c.days.forEach(dw=>{let d=pd(ACAD.ini);while(d.getDay()!=dw)d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+  const ex=[...ACAD.fer.map(f=>f[0]),...SA.filter(x=>x.name=="*"||x.name==c.name).map(x=>x.date)].filter(x=>x>=ACAD.ini&&x<=ACAD.fim&&pd(x).getDay()==dw);
+  L.push("BEGIN:VEVENT","UID:au-"+c.id+"-"+dw+"@fluxo","DTSTAMP:"+stamp,"SUMMARY:"+cl(c.name),"DTSTART:"+ymd(iso(d))+"T"+t6(c.start),"DTEND:"+ymd(iso(d))+"T"+t6(c.end),"RRULE:FREQ=WEEKLY;UNTIL="+ymd(ACAD.fim)+"T235959",...ex.map(x=>"EXDATE:"+ymd(x)+"T"+t6(c.start)));
+  if(c.room)L.push("LOCATION:"+cl(c.room));L.push(...al("-PT30M"),"END:VEVENT")}));
+ L.push("END:VCALENDAR");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([L.join("\r\n")],{type:"text/calendar"}));a.download="meu-fluxograma.ics";a.click()}
+function renderX(){
+ const G=C.filter(c=>c[2]<=10),GO=G.filter(c=>!/^OPT/.test(c[0])),B=new Set([...done,...CURS]),ok=(c,S)=>!S.has(c[0])&&miss(c).every(p=>S.has(p)),cand=G.filter(c=>ok(c,B)),S2=new Set([...B,...SIM]),
+ lib=G.filter(c=>!S2.has(c[0])&&!ok(c,B)&&miss(c).every(p=>S2.has(p))),hs=[...SIM].reduce((a,k)=>a+(by[k]?by[k][4]:0),0),ex=c=>/estágio|conclusão|enade/i.test(c[1]),
+ bar=(t,g)=>{const a=g.filter(c=>done.has(c[0])).reduce((s,c)=>s+c[4],0),b=g.reduce((s,c)=>s+c[4],0);return `<div class="sub" style="margin:10px 0 4px">${t}: ${a}h de ${b}h (${Math.round(100*a/b)}%)</div><div style="height:8px;background:var(--xb);border-radius:6px"><div style="height:8px;width:${100*a/b}%;background:var(--g,#2f9e6b);border-radius:6px"></div></div>`},
+ U=location.origin+location.pathname,BM="javascript:(function(){var t=document.body.innerText,k=/Componentes Curriculares/i.test(t)?'hi':'sg';window.open('"+U+"#'+k+'='+btoa(unescape(encodeURIComponent(t))))})()";
+ $("v-ext").innerHTML=`<h2>PROGRESSO</h2><div style="padding:0 14px">${bar("Obrigatórias",GO)}${bar("Obrigatórias sem estágio e TCC",GO.filter(c=>!ex(c)))}${bar("Optativas",G.filter(c=>/^OPT/.test(c[0])))}<p class="sub">Usa a carga horária do currículo (60h, 30h, 90h...). Optativas e atividades complementares não entram.</p></div>
+<h2>SIMULADOR DE SEMESTRE</h2><div style="padding:0 14px"><p class="sub">Toque nas matérias que pretende cursar. Considero que você passa nas que está cursando agora.</p><div class="grid">${cand.map(c=>`<button class="c ${SIM.has(c[0])?"d":"a"}" data-s="${c[0]}"><b>${c[0]}</b><span>${c[1]}</span></button>`).join("")||'<p class="sub">Nada disponível.</p>'}</div>
+<p class="sub">${SIM.size?SIM.size+" matérias • "+hs+"h":"Nenhuma selecionada"}</p>${SIM.size?`<p><b>Libera depois:</b> ${lib.length?lib.map(c=>c[0]+" "+c[1]).join("; "):"nada novo"}</p>`:""}</div>
+<h2>CALENDÁRIO ACADÊMICO</h2><div style="padding:0 14px"><label>Início das aulas<input type="date" id="xi" value="${ACAD.ini}"></label><label>Fim das aulas<input type="date" id="xf" value="${ACAD.fim}"></label>
+${ACAD.fer.map((f,i)=>`<div class="sub" style="margin-top:8px">${fmt(f[0])} • ${esc(f[1])} <button data-fd="${i}" style="min-height:0">✕</button></div>`).join("")}
+<div class="row" style="padding:8px 0"><input type="date" id="fd" style="flex:1"><input id="fn2" placeholder="Feriado ou recesso" style="flex:2"><button data-fa="1">+</button></div><p class="sub">Feriados sugeridos; confira no calendário da UFBA. Eles aparecem como "sem aula" na grade.</p></div>
+<h2>LEMBRETES</h2><div style="padding:0 14px"><div class="row" style="padding:0"><button data-a="ics">📅 Exportar provas e aulas (.ics)</button></div><p class="sub">Abra o arquivo no celular e adicione ao Google Agenda. Provas avisam 7 dias, 1 dia e 2h antes (ou 9h do dia anterior se não tiver horário); aulas avisam 30 min antes. Exporte de novo quando mudar algo.</p></div>
+<h2>IMPORTAR SEM COLAR</h2><div style="padding:0 14px"><p class="sub">No computador: copie o código abaixo e salve como favorito. Logado no SIGAA, clique no favorito: ele abre o app já lendo a página (turmas e avaliações). Seus dados não passam por servidor.</p><textarea readonly>${esc(BM)}</textarea><div class="row" style="padding:6px 0"><button data-a="bm">Copiar código</button></div></div>
+<h2>APP E DADOS</h2><div class="row"><button data-a="inst">📲 Instalar app</button><button data-a="th">🌓 Tema</button><button data-a="bk">⬇️ Backup</button><button data-a="rs">⬆️ Restaurar</button><input type="file" id="rsf" accept=".json" hidden></div>`}
+$("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
+ if(d.s){SIM.has(d.s)?SIM.delete(d.s):SIM.add(d.s)}
+ else if(d.fd){ACAD.fer.splice(+d.fd,1);saveAC()}
+ else if(d.fa){const x=$("fd").value;if(!x)return;ACAD.fer.push([x,$("fn2").value||"Sem aula"]);ACAD.fer.sort();saveAC()}
+ else if(d.a=="ics")return icsDL();
+ else if(d.a=="bm")return navigator.clipboard.writeText(b.closest("div").previousElementSibling.value).then(()=>b.textContent="Copiado ✓");
+ else if(d.a=="inst")return DIP?DIP.prompt():alert("No iPhone: Compartilhar → Adicionar à Tela de Início. No Android/Chrome: menu ⋮ → Instalar app.");
+ else if(d.a=="th"){const t=document.documentElement.dataset.theme=="dark"?"light":"dark";document.documentElement.dataset.theme=t;try{localStorage.setItem("fluxo_theme",t)}catch(x){}return}
+ else if(d.a=="bk"){const o={};[K,KC,KE,KA,KN,KH,KS,KHI,KAC].forEach(k=>o[k]=localStorage.getItem(k));const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:"application/json"}));a.download="meu-fluxograma-backup.json";a.click();return}
+ else if(d.a=="rs")return $("rsf").click();
+ renderX()};
+$("v-ext").onchange=e=>{if(e.target.id=="xi"){ACAD.ini=e.target.value;saveAC()}else if(e.target.id=="xf"){ACAD.fim=e.target.value;saveAC()}else if(e.target.id=="rsf"){const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);Object.keys(o).forEach(k=>{if(o[k]!=null)localStorage.setItem(k,o[k])});loadAll();renderAll();renderX();alert("Backup restaurado.")}catch(x){alert("Arquivo inválido.")}})}};
+(function(){const m=location.hash.match(/^#(sg|hi)=(.+)$/);if(!m)return;let t="";try{t=decodeURIComponent(escape(atob(m[2])))}catch(e){return}history.replaceState(null,"",location.pathname);
+ setTimeout(()=>{if(m[1]=="sg"){tab("h");openSG();$("sgt").value=t;$("sgp").click()}else{tab("f");$("imp").click();$("ta").value=t;$("go").click()}},400)})();
+const CHM={34:30,68:60,102:90,204:180};
+function fixCH(){let c=0;AB.forEach(x=>{if(CHM[x.ch]){x.ch=CHM[x.ch];c++}});if(c){saveA();renderA()}}
+fixCH();
 /* ===== Sincronização (Firebase) ===== */
 function loadAll(){
  const g=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
- done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);
+ done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});fixCH();ACAD={...ACAD,...g(KAC,{})};
 }
 function renderAll(){render();renderP();renderA();renderN();renderH()}
+function syIcon(){const S=window.SYNC||{};return S.s=="on"?"☁️✓":S.s=="err"?"☁️⚠️":"☁️"}
 function syLabel(){const S=window.SYNC||{};return S.s=="on"?"☁️ Sincronizado • "+S.email:S.s=="out"?"☁️ Entrar para sincronizar":S.s=="err"?"☁️ Erro de sincronização":"☁️ Sincronização: não configurada"}
 function syncUI(){
- const S=window.SYNC||{s:"nocfg"},b=$("sy");if(b)b.textContent=syLabel();
+ const S=window.SYNC||{s:"nocfg"},b=$("sy");if(b)b.textContent=syIcon();
  $("syt").textContent=S.s=="nocfg"?"A sincronização ainda não foi configurada neste app. Sem ela, os dados ficam só neste aparelho.":(S.s=="on"||S.s=="err")?(S.email?"Conectado como "+S.email+". ":"")+(S.msg||""):(S.msg||"Entre com a mesma conta em todos os aparelhos. Se este aparelho já tem dados, entre por ele primeiro.");
  $("syf").hidden=S.s!="out";$("syo").hidden=!(S.s=="on"||S.s=="err");
 }
@@ -853,9 +993,16 @@ $("syn").onclick=()=>SYNC.now();
 $("syx").onclick=()=>SYNC.logout();
 $("syz").onclick=()=>$("dsy").close();
 (function(){
- const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1"];
+ const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1"];
  const ST=window.SYNC={s:CFG?"out":"nocfg",email:"",msg:""},upd=()=>syncUI();
- const rawSet=Storage.prototype.setItem,rT={};
+ function mg(b,l,r,pr){
+  let B,L,R;try{B=JSON.parse(b||"null")||[];L=JSON.parse(l);R=JSON.parse(r)}catch(e){return null}
+  if(!Array.isArray(L)||!Array.isArray(R)||!Array.isArray(B))return null;
+  const id=x=>x&&typeof x=="object"?x.id:x,bi=new Set(B.map(id)),lm=new Map(L.map(x=>[id(x),x])),rm=new Map(R.map(x=>[id(x),x])),o=[];
+  new Set([...lm.keys(),...rm.keys()]).forEach(i=>{const a=lm.get(i),c=rm.get(i);
+   if(a!==undefined&&c!==undefined)o.push(pr?c:a);else if(!bi.has(i))o.push(a!==undefined?a:c)});
+  return JSON.stringify(o)}
+ const rawSet=Storage.prototype.setItem,rT={},rV={},bs=(()=>{try{return JSON.parse(localStorage.getItem("fluxo_base")||"{}")}catch(e){return{}}})(),sb=()=>rawSet.call(localStorage,"fluxo_base",JSON.stringify(bs));
  let api=null,ref=null,unsub=null,ready=false,applying=false,timer=null;
  const meta=()=>{try{return JSON.parse(localStorage.getItem("fluxo_meta")||"{}")}catch(e){return{}}};
  const setMeta=m=>rawSet.call(localStorage,"fluxo_meta",JSON.stringify(m));
@@ -867,12 +1014,12 @@ $("syz").onclick=()=>$("dsy").close();
  };
  async function push(){
   if(!api||!ref||!ready)return;
-  const m=meta(),items={};let any=false;
-  SK.forEach(k=>{const v=localStorage.getItem(k);if(v==null)return;const lt=m[k]||0;
-   if(rT[k]===undefined||lt>rT[k]){const t=lt||Date.now();items[k]={v,t};m[k]=t;any=true}});
+  const m=meta(),items={};let any=false,mrg=false;
+  SK.forEach(k=>{let v=localStorage.getItem(k);if(v==null)return;const lt=m[k]||0;
+   if(rT[k]===undefined||lt>rT[k]){if(rV[k]!==undefined&&rV[k]!==v){const mm=mg(bs[k],v,rV[k],false);if(mm&&mm!==v){v=mm;rawSet.call(localStorage,k,v);mrg=true}}const t=lt||Date.now();items[k]={v,t};m[k]=t;any=true}});
   if(!any)return;
   setMeta(m);
-  try{await api.Fs.setDoc(ref,{items},{merge:true});Object.keys(items).forEach(k=>rT[k]=items[k].t);ST.s="on";ST.msg="Sincronizado às "+hm()}
+  try{await api.Fs.setDoc(ref,{items},{merge:true});Object.keys(items).forEach(k=>{rT[k]=items[k].t;rV[k]=items[k].v;bs[k]=items[k].v});sb();if(mrg){loadAll();renderAll()};ST.s="on";ST.msg="Sincronizado às "+hm()}
   catch(e){ST.s="err";ST.msg=em(e)}
   upd();
  }
@@ -880,7 +1027,7 @@ $("syz").onclick=()=>$("dsy").close();
   if(snap.metadata.hasPendingWrites)return;
   const it=(snap.exists()&&snap.data().items)||{},m=meta();let ch=false;
   applying=true;
-  SK.forEach(k=>{const r=it[k];if(r){rT[k]=r.t;if(r.t>(m[k]||0)){rawSet.call(localStorage,k,r.v);m[k]=r.t;ch=true}}});
+  SK.forEach(k=>{const r=it[k];if(r){rT[k]=r.t;rV[k]=r.v;const lv=localStorage.getItem(k);if(r.t>(m[k]||0)){let v=r.v;if(lv!=null&&lv!==r.v){const mm=mg(bs[k],lv,r.v,true);if(mm)v=mm}rawSet.call(localStorage,k,v);m[k]=v!==r.v?Date.now():r.t;bs[k]=v;ch=true}else if(lv===r.v)bs[k]=lv}});sb();
   applying=false;setMeta(m);ready=true;
   if(ch){loadAll();renderAll()}
   ST.s="on";ST.msg="Sincronizado às "+hm();upd();push();
