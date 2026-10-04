@@ -189,7 +189,8 @@ h2{margin:12px 14px 6px}
 .nc .nr{margin-top:6px}
 </style>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
-<style>nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:90px}#v-ext label{display:block;font-size:12px;color:var(--mut);margin-top:8px}#v-ext input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--card);color:var(--fg)}#v-ext textarea{width:100%;height:70px;font-size:11px}</style>
+<style>.lc{margin:0 14px;background:var(--card);border:1px solid var(--xb);border-radius:14px;overflow:hidden}.ev2{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:58px;padding:9px 12px;border:0;border-top:1px solid var(--xb);background:transparent;color:var(--fg);font:inherit;text-align:left}.lc>.ev2:first-child{border-top:0}.dt{width:36px;flex:none;text-align:center;line-height:1.1}.dt b{display:block;font-size:20px}.dt small{display:block;font-size:10px;text-transform:uppercase;color:var(--mut)}.tx{flex:1;min-width:0}.tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx span{display:block;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ev2 em{font-style:normal;font-size:12px;color:var(--mut);white-space:nowrap}.ev2.u em{color:var(--r);font-weight:600}.past .ev2{opacity:.6}
+nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:90px}#v-ext label{display:block;font-size:12px;color:var(--mut);margin-top:8px}#v-ext input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--card);color:var(--fg)}#v-ext textarea{width:100%;height:70px;font-size:11px}</style>
 </head>
 <body>
 <section id="v-prov"></section>
@@ -578,7 +579,10 @@ const fmt=s=>{const d=pd(s);return WD[d.getDay()]+", "+String(d.getDate()).padSt
 const dd=s=>Math.round((pd(s)-td())/864e5);
 const rel=s=>{const n=dd(s);return n==0?"hoje":n==1?"amanhã":n>1?"em "+n+" dias":"há "+(-n)+(n==-1?" dia":" dias")};
 const srt=(a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||""));
-const item=e=>{const n=dd(e.date);return `<button class="ev${n>=0&&n<=3?" u":""}" data-e="${e.id}" style="border-left-color:${mc(e.disc)}"><div><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}${e.note?" • "+esc(e.note):""}</span></div><em>${rel(e.date)}</em></button>`};
+const MA=["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],WA=["dom","seg","ter","qua","qui","sex","sáb"];
+const item=e=>{const n=dd(e.date),d=pd(e.date),c=mc(e.disc),p=e.disc.split(" – "),nm=p.length>1?p.slice(1).join(" – "):e.disc,cd=p.length>1?p[0]:"",sub=[e.note,e.time].filter(Boolean).join(" • ");
+ return `<button class="ev2${n>=0&&n<=3?" u":""}" data-e="${e.id}"><div class="dt" style="color:${c}"><small>${WA[d.getDay()]}</small><b>${d.getDate()}</b><small>${MA[d.getMonth()]}</small></div><div class="tx"><b>${esc(nm)}</b><span>${esc(cd)}${cd&&sub?" • ":""}${esc(sub)}</span></div><em>${rel(e.date)}</em></button>`};
+const byMonth=l=>{let o="",cur="";l.forEach(e=>{const k=e.date.slice(0,7);if(k!=cur){if(cur)o+="</div>";cur=k;const d=pd(e.date);o+=`<h2>${MN[d.getMonth()].toUpperCase()}${d.getFullYear()!=td().getFullYear()?" "+d.getFullYear():""}</h2><div class="lc">`}o+=item(e)});return o+(cur?"</div>":"")};
 $("dl").innerHTML=C.map(c=>`<option value="${c[0]} – ${c[1]}">`).join("");
 function renderP(){
  const t=iso(td()),X0=EX.filter(e=>!fm||ck(e.disc)==fm),up=X0.filter(e=>e.date>=t).sort(srt),pa=X0.filter(e=>e.date<t).sort(srt).reverse();
@@ -591,9 +595,9 @@ function renderP(){
  for(let d=1;d<=n;d++){const s=iso(new Date(y,m,d)),cl=X0.filter(e=>e.date==s),c=cl.length;
   g+=`<button class="day${s==t?" t":""}${s==sel?" s":""}" data-d="${s}">${d}${c?`<u>${cl.slice(0,3).map(e=>`<span style="color:${mc(e.disc)}">●</span>`).join("")}</u>`:""}</button>`}
  h+=`<div class="cal" style="margin-top:10px"><div class="ch"><button id="pm">‹</button><b>${MN[m]} ${y}</b><button id="nm">›</button></div><div class="wd">${WD.map(w=>`<span>${w[0].toUpperCase()}</span>`).join("")}</div><div class="dg">${g}</div></div>`;
- if(sel){const l=X0.filter(e=>e.date==sel).sort(srt);h+=`<h2>${fmt(sel).toUpperCase()}</h2><div class="list">${l.length?l.map(item).join(""):'<p class="sub" style="margin:0">Sem provas neste dia.</p>'}</div>`}
- if(up.length>1){if(grp){[...new Set(up.map(e=>ck(e.disc)))].forEach(k=>{const l=up.filter(e=>ck(e.disc)==k);h+=`<h2><span style="color:${col(k)}">●</span> ${esc(l[0].disc.toUpperCase())} • ${l.length}</h2><div class="list">${l.map(item).join("")}</div>`})}else h+=`<h2>DEPOIS</h2><div class="list">${up.slice(1).map(item).join("")}</div>`}
- if(pa.length)h+=`<h2>ANTERIORES</h2><div class="list past">${pa.map(item).join("")}</div>`;
+ if(sel){const l=X0.filter(e=>e.date==sel).sort(srt);h+=`<h2>${fmt(sel).toUpperCase()}</h2><div class="${l.length?"lc":"list"}">${l.length?l.map(item).join(""):'<p class="sub" style="margin:0">Sem provas neste dia.</p>'}</div>`}
+ if(up.length>1){if(grp){[...new Set(up.map(e=>ck(e.disc)))].forEach(k=>{const l=up.filter(e=>ck(e.disc)==k);h+=`<h2><span style="color:${col(k)}">●</span> ${esc(l[0].disc.toUpperCase())} • ${l.length}</h2><div class="lc">${l.map(item).join("")}</div>`})}else h+=byMonth(up.slice(1))}
+ if(pa.length)h+=`<h2>ANTERIORES</h2><div class="lc past">${pa.map(item).join("")}</div>`;
  $("v-prov").innerHTML=h;
 }
 $("v-prov").onclick=e=>{
