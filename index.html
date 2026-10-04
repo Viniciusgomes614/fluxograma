@@ -188,6 +188,7 @@ h2{margin:12px 14px 6px}
 .ed{border:0;background:var(--xb);color:var(--fg);border-radius:10px;width:40px;height:40px;font-size:16px}
 .nc .nr{margin-top:6px}
 </style>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
 <style>nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:90px}#v-ext label{display:block;font-size:12px;color:var(--mut);margin-top:8px}#v-ext input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--card);color:var(--fg)}#v-ext textarea{width:100%;height:70px;font-size:11px}</style>
 </head>
 <body>
@@ -1012,7 +1013,7 @@ $("syz").onclick=()=>$("dsy").close();
  const em=x=>({"auth/invalid-credential":"E-mail ou senha incorretos.","auth/wrong-password":"E-mail ou senha incorretos.","auth/user-not-found":"Conta não encontrada. Use Criar conta.","auth/email-already-in-use":"Esse e-mail já tem conta. Use Entrar.","auth/weak-password":"Senha muito curta (mínimo 6 caracteres).","auth/invalid-email":"E-mail inválido.","auth/network-request-failed":"Sem conexão com a internet.","auth/popup-closed-by-user":"Login cancelado.","auth/cancelled-popup-request":"Login cancelado.","auth/popup-blocked":"O navegador bloqueou a janela do Google. Libere pop-ups e tente de novo.","auth/unauthorized-domain":"Este endereço não está nos domínios autorizados do Firebase.","auth/operation-not-allowed":"Esse tipo de login não está ativado no Firebase."}[x.code]||("Erro: "+(x.code||x.message)));
  Storage.prototype.setItem=function(k,v){
   rawSet.call(this,k,v);
-  if(this===localStorage&&!applying&&SK.includes(k)){const m=meta();m[k]=Date.now();setMeta(m);clearTimeout(timer);timer=setTimeout(push,1200)}
+  if(this===localStorage&&!applying&&SK.includes(k)){const m=meta();m[k]=Date.now();setMeta(m);clearTimeout(timer);timer=setTimeout(push,300)}
  };
  async function push(){
   if(!api||!ref||!ready)return;
@@ -1029,7 +1030,11 @@ $("syz").onclick=()=>$("dsy").close();
   if(snap.metadata.hasPendingWrites)return;
   const it=(snap.exists()&&snap.data().items)||{},m=meta();let ch=false;
   applying=true;
-  SK.forEach(k=>{const r=it[k];if(r){rT[k]=r.t;rV[k]=r.v;const lv=localStorage.getItem(k);if(r.t>(m[k]||0)){let v=r.v;if(lv!=null&&lv!==r.v){const mm=mg(bs[k],lv,r.v,true);if(mm)v=mm}rawSet.call(localStorage,k,v);m[k]=v!==r.v?Date.now():r.t;bs[k]=v;ch=true}else if(lv===r.v)bs[k]=lv}});sb();
+  SK.forEach(k=>{const r=it[k];if(r){rT[k]=r.t;rV[k]=r.v;const lv=localStorage.getItem(k);
+   if(lv===r.v){bs[k]=lv}else{const nw=r.t>(m[k]||0);let v=r.v;const mm=lv!=null?mg(bs[k],lv,r.v,nw):null;
+    if(mm)v=mm;else if(!nw&&lv!=null)v=lv;
+    if(v!==lv){rawSet.call(localStorage,k,v);ch=true}
+    m[k]=v!==r.v?Date.now():r.t;bs[k]=v}}});sb();
   applying=false;setMeta(m);ready=true;
   if(ch){loadAll();renderAll()}
   ST.s="on";ST.msg="Sincronizado às "+hm();upd();push();
@@ -1047,13 +1052,16 @@ $("syz").onclick=()=>$("dsy").close();
  ST.login=(e,p)=>auth("signInWithEmailAndPassword",e,p);
  ST.signup=(e,p)=>auth("createUserWithEmailAndPassword",e,p);
  ST.logout=()=>api&&api.Au.signOut(api.auth);
- ST.now=()=>{ST.msg="Sincronizando…";upd();push()};
+ ST.now=()=>{ST.msg="Sincronizando…";upd();if(ref&&api)api.Fs.getDocFromServer(ref).then(onSnap).catch(()=>push());else push()};
  if(!CFG)return;
  (async()=>{
   const B="https://www.gstatic.com/firebasejs/10.12.2/";
   const [A,Au,Fs]=await Promise.all([import(B+"firebase-app.js"),import(B+"firebase-auth.js"),import(B+"firebase-firestore.js")]);
-  const app=A.initializeApp(CFG),a=Au.getAuth(app),db=Fs.getFirestore(app);
+  const app=A.initializeApp(CFG),a=Au.getAuth(app),db=Fs.initializeFirestore(app,{experimentalAutoDetectLongPolling:true});
   api={Au,Fs,auth:a,db};
+  const pull=()=>{if(ref)Fs.getDocFromServer(ref).then(onSnap).catch(()=>{})};
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){clearTimeout(timer);push()}else pull()});
+  addEventListener("pagehide",()=>{clearTimeout(timer);push()});addEventListener("online",pull);
   Au.onAuthStateChanged(a,u=>{
    if(unsub)unsub();unsub=null;ready=false;
    if(u){ST.email=u.email;ST.msg="Sincronizando…";ref=Fs.doc(db,"users",u.uid);unsub=Fs.onSnapshot(ref,onSnap,e=>{ST.s="err";ST.msg=em(e);upd()})}
