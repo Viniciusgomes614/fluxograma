@@ -189,12 +189,14 @@ h2{margin:12px 14px 6px}
 .nc .nr{margin-top:6px}
 </style>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"><link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
-<style>.tabs{scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.bx{margin:0 14px 10px;padding:12px;background:var(--card);border:1px solid var(--xb);border-radius:14px}.chs{display:flex;flex-wrap:wrap;gap:6px}.fr{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;font-size:13px}.fr .s{min-height:0;padding:2px 10px}#v-ext summary{cursor:pointer;margin-top:12px;font-size:13px}#v-ext .sub{margin:6px 0}
+<style>.cr{display:flex;align-items:stretch;border-top:1px solid var(--xb)}.lc>.cr:first-child{border-top:0}.cr .ev2{border-top:0;flex:1;width:auto;min-width:0}.fl{flex:none;width:64px;border:0;border-left:1px solid var(--xb);background:transparent;color:var(--mut);font:inherit;font-size:12px}.fl.on{color:var(--r);font-weight:700}#dEnd{max-width:92vw;width:440px;border:1px solid var(--xb);border-radius:14px;background:var(--card);color:var(--fg);padding:16px}#dEnd::backdrop{background:rgba(0,0,0,.6)}#dEnd .fr label{display:flex;gap:8px;align-items:center}#dEnd input[type=text]{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--bg);color:var(--fg)}
+.tabs{scrollbar-width:none}.tabs::-webkit-scrollbar{display:none}.bx{margin:0 14px 10px;padding:12px;background:var(--card);border:1px solid var(--xb);border-radius:14px}.chs{display:flex;flex-wrap:wrap;gap:6px}.fr{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 0;font-size:13px}.fr .s{min-height:0;padding:2px 10px}#v-ext summary{cursor:pointer;margin-top:12px;font-size:13px}#v-ext .sub{margin:6px 0}
 .dd{display:inline-block;width:7px;height:7px;border-radius:50%;border:2px solid transparent;box-sizing:border-box}.dds{display:flex;justify-content:center;flex-wrap:wrap;gap:3px;margin-top:4px}.cl2 .dt{width:46px}.cl2.off .tx b{text-decoration:line-through;opacity:.6}.cl2.off .tx span{color:var(--r);font-weight:600}
 .lc{margin:0 14px;background:var(--card);border:1px solid var(--xb);border-radius:14px;overflow:hidden}.ev2{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:58px;padding:9px 12px;border:0;border-top:1px solid var(--xb);background:transparent;color:var(--fg);font:inherit;text-align:left}.lc>.ev2:first-child{border-top:0}.dt{width:36px;flex:none;text-align:center;line-height:1.1}.dt b{display:block;font-size:20px}.dt small{display:block;font-size:10px;text-transform:uppercase;color:var(--mut)}.tx{flex:1;min-width:0}.tx b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tx span{display:block;font-size:12.5px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ev2 em{font-style:normal;font-size:12px;color:var(--mut);white-space:nowrap}.ev2.u em{color:var(--r);font-weight:600}.past .ev2{opacity:.6}
 nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:90px}#v-ext label{display:block;font-size:12px;color:var(--mut);margin-top:8px}#v-ext input{width:100%;box-sizing:border-box;font:inherit;padding:8px;border:1px solid var(--xb);border-radius:8px;background:var(--card);color:var(--fg)}#v-ext textarea{width:100%;height:70px;font-size:11px}</style>
 </head>
 <body>
+<section id="v-hoje" hidden></section>
 <section id="v-prov"></section>
 <section id="v-hor" hidden></section>
 <section id="v-abs" hidden></section>
@@ -211,7 +213,7 @@ nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:9
 <main id="main"></main>
 </section>
 <section id="v-ext" hidden></section>
-<nav><div><button data-v="p"><span>📅</span>Provas</button><button data-v="h"><span>🏫</span>Aulas</button><button data-v="a"><span>📋</span>Faltas</button><button data-v="n"><span>📊</span>Notas</button><button data-v="f"><span>🎓</span>Fluxograma</button><button data-v="x"><span>⚙️</span>Mais</button></div></nav>
+<nav><div><button data-v="o"><span>☀️</span>Hoje</button><button data-v="p"><span>📅</span>Provas</button><button data-v="h"><span>🏫</span>Aulas</button><button data-v="a"><span>📋</span>Faltas</button><button data-v="n"><span>📊</span>Notas</button><button data-v="f"><span>🎓</span>Fluxograma</button><button data-v="x"><span>⚙️</span>Mais</button></div></nav>
 <dialog id="dsy"><div class="m">
 <b>Sincronização entre aparelhos</b>
 <p class="sub" id="syt"></p>
@@ -661,7 +663,7 @@ function renderA(){
   c=over||at?"var(--r)":r>=.7?"var(--e)":"var(--g)",
   pct=(a.f*2/a.ch*100).toFixed(1).replace(".",","),
   msg=over?`Passou ${pl(a.f-L,"falta","faltas")} do limite`:at?"No limite — não pode faltar":`Pode faltar mais ${L-a.f}`;
-  return `<div class="fc"><div class="fi" data-ae="${a.id}"><div class="f1"><b>${esc(a.name)}</b><span style="color:${c}">${a.f}/${L}</span></div><div class="pbar"><i style="width:${Math.min(100,r*100)}%;background:${c}"></i></div><div class="f2" style="color:${c}">${msg} <small>• ${pct}% de faltas</small></div></div><div class="fb"><button data-ad="${a.id}">−</button><button class="p1" data-au="${a.id}">+</button></div></div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria". Cada aula de 1h40 conta como 1 falta, com limite de 25%.</p>`;
+  return `<div class="fc"><div class="fi" data-ae="${a.id}"><div class="f1"><b>${esc(a.name)}</b><span style="color:${c}">${a.f}/${L}</span></div><div class="pbar"><i style="width:${Math.min(100,r*100)}%;background:${c}"></i></div><div class="f2" style="color:${c}">${msg} <small>• ${pct}% de faltas</small></div></div><div class="fb"><button data-ad="${a.id}">−</button><button class="p1" data-au="${a.id}">+</button></div></div>`}).join(""):`<p class="sub" style="padding:0 14px">Nenhuma matéria. Toque em "+ Matéria". Cada aula de 1h50 conta como 1 falta, com limite de 25%.</p>`;
  $("v-abs").innerHTML=h;
 }
 $("v-abs").onclick=e=>{
@@ -671,7 +673,7 @@ $("v-abs").onclick=e=>{
  if(b=q("[data-au]")){AB.find(x=>x.id==b.dataset.au).f++;saveA();return renderA()}
  if(b=q("[data-ad]")){const a=AB.find(x=>x.id==b.dataset.ad);a.f=Math.max(0,a.f-1);saveA();renderA()}
 };
-const prevA=()=>{const c=+$("ac").value;$("ap").textContent=c>0?"Limite: "+pl(lim(c),"falta","faltas")+" ("+Math.floor(c/2)+" aulas de 1h40 no semestre)":""};
+const prevA=()=>{const c=+$("ac").value;$("ap").textContent=c>0?"Limite: "+pl(lim(c),"falta","faltas")+" ("+Math.floor(c/2)+" aulas de 1h50 no semestre)":""};
 $("ac").oninput=prevA;
 function openA(id){
  const a=id?AB.find(x=>x.id==id):null;abId=a?a.id:null;
@@ -781,8 +783,10 @@ const mins=t=>{const[h,i]=t.split(":").map(Number);return h*60+i};
 const dayCl=d=>CL.filter(c=>c.days.includes(d.getDay())).sort((a,b)=>a.start.localeCompare(b.start));
 const nmOf=d=>{const p=String(d).split(" – ");return p.length>1?p.slice(1).join(" – "):d},cdOf=d=>{const p=String(d).split(" – ");return p.length>1?p[0]:""};
 let szAll=false;
-const clBtn=(c,s)=>{const x=off(c,s),k=mc(c.name),sub=[esc(cdOf(c.name)),c.room&&esc(c.room),x&&"Sem aula"+(x.reason?" — "+esc(x.reason):"")].filter(Boolean).join(" • ");
- return `<button class="ev2 cl2${x?" off":""}" data-o="${c.id}|${s}"><div class="dt" style="color:${x?"var(--mut)":k}"><b style="font-size:15px">${c.start}</b><small>${c.end}</small></div><div class="tx"><b>${esc(nmOf(c.name))}</b><span>${sub}</span></div></button>`};
+const isF=(c,s)=>{const a=AB.find(x=>ck(x.name)==ck(c.name));return !!(a&&a.ds&&a.ds.includes(s+"|"+c.start))};
+const clBtn=(c,s)=>{const x=off(c,s),k=mc(c.name),sub=[esc(cdOf(c.name)),c.room&&esc(c.room),x&&"Sem aula"+(x.reason?" — "+esc(x.reason):"")].filter(Boolean).join(" • "),
+ fl=!x&&s<=iso(td())?`<button class="fl${isF(c,s)?" on":""}" data-fl="${c.id}|${s}">${isF(c,s)?"Faltou ✓":"Faltei"}</button>`:"";
+ return `<div class="cr"><button class="ev2 cl2${x?" off":""}" data-o="${c.id}|${s}"><div class="dt" style="color:${x?"var(--mut)":k}"><b style="font-size:15px">${c.start}</b><small>${c.end}</small></div><div class="tx"><b>${esc(nmOf(c.name))}</b><span>${sub}</span></div></button>${fl}</div>`};
 function weekH(t){
  const nd=CL.some(c=>c.days.includes(0))?7:6;
  let a=CL.length?Math.floor(Math.min(...CL.map(c=>mins(c.start)))/60):7,b=CL.length?Math.ceil(Math.max(...CL.map(c=>mins(c.end)))/60):18;
@@ -836,6 +840,7 @@ function renderH(){
 }
 $("v-hor").onclick=e=>{
  const q=s=>e.target.closest(s);let b;
+ if(b=q("[data-fl]")){const[i,d]=b.dataset.fl.split("|");toggleFalta(i,d);return renderH()}
  if(q("#zall")){szAll=!szAll;return renderH()}
  if(q("#sg"))return openSG();
  if(q("#ha"))return openH();
@@ -970,8 +975,42 @@ addEventListener("beforeinstallprompt",e=>{e.preventDefault();DIP=e});
 try{const th=localStorage.getItem("fluxo_theme");if(th)document.documentElement.dataset.theme=th}catch(e){}
 function tcol(){const t=document.documentElement.dataset.theme,dk=t?t=="dark":matchMedia("(prefers-color-scheme:dark)").matches;document.querySelectorAll('meta[name=theme-color]').forEach(m=>m.remove());const m=document.createElement("meta");m.name="theme-color";m.content=dk?"#111418":"#f3f4f6";document.head.appendChild(m)}
 tcol();matchMedia("(prefers-color-scheme:dark)").addEventListener("change",tcol);
-const _tab=tab;tab=function(v){_tab(v);$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
-try{const lt=localStorage.getItem("fluxo_tab");if(lt&&lt!="p"&&!/^#(sg|hi)=/.test(location.hash)){tab(lt);const sy=+localStorage.getItem("fluxo_scroll_"+lt)||0;setTimeout(()=>scrollTo(0,sy),50)}}catch(e){}
+const KAR="fluxo_arq_v1";let ARQ=[];try{ARQ=JSON.parse(localStorage.getItem(KAR)||"[]")}catch(e){}
+function bkDL(){const o={};[K,KC,KE,KA,KN,KH,KS,KHI,KAC,KAR,"fluxo_cor_v1","fluxo_media_v1"].forEach(k=>o[k]=localStorage.getItem(k));const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:"application/json"}));a.download="meu-fluxograma-backup.json";a.click()}
+function toggleFalta(cid,s){const c=CL.find(x=>x.id==cid);if(!c)return;const k=ck(c.name);let a=AB.find(x=>ck(x.name)==k);
+ if(!a){const r=by[k];a={id:uid(),name:c.name,ch:r?r[4]:60,f:0,ds:[]};AB.push(a)}
+ a.ds=a.ds||[];const key=s+"|"+c.start,i=a.ds.indexOf(key);
+ if(i>=0){a.ds.splice(i,1);a.f=Math.max(0,a.f-1)}else{a.ds.push(key);a.f++}
+ saveA();renderA()}
+function renderO(){
+ const d=td(),t=iso(d),l=dayCl(d),up=EX.filter(e=>e.date>=t).sort(srt).slice(0,3),
+ al=AB.filter(a=>{const L=lim(a.ch);return L&&L-a.f<=1}).map(a=>{const L=lim(a.ch),m=L-a.f;return `<div class="fr"><span><b>${esc(nmOf(a.name))}</b></span><span style="color:var(--r)">${m<0?"passou do limite":m==0?"no limite":"pode faltar só mais 1"} (${a.f}/${L})</span></div>`}).join("");
+ $("v-hoje").innerHTML=`<div class="top"><h1>Hoje</h1><span class="sub" style="margin:0">${WD[d.getDay()]}, ${sh(d)}</span></div><h2>AULAS</h2>`+(l.length?`<div class="lc">${l.map(c=>clBtn(c,t)).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Sem aulas hoje.</p>`)
+ +`<h2>PRÓXIMAS PROVAS</h2>`+(up.length?`<div class="lc">${up.map(item).join("")}</div><div class="row" style="padding:8px 14px 0"><button class="s" data-go="p">Ver todas as provas</button></div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhuma prova cadastrada.</p>`)
+ +(al?`<h2>ATENÇÃO COM FALTAS</h2><div class="bx">${al}</div>`:"")}
+$("v-hoje").onclick=e=>{const q=x=>e.target.closest(x);let b;
+ if(b=q("[data-fl]")){const[i,d]=b.dataset.fl.split("|");toggleFalta(i,d);return renderO()}
+ if(b=q("[data-e]"))return openE(b.dataset.e);
+ if(b=q("[data-go]")){tab(b.dataset.go);scrollTo(0,0)}};
+function openEnd(){
+ const y=ACAD.ini.slice(0,4),lab=y+(+ACAD.ini.slice(5,7)<=6?".1":".2"),cs=[...CURS].filter(k=>by[k]),
+ info=k=>{const a=AB.find(x=>ck(x.name)==k),m=NT.find(x=>ck(x.name)==k),r=m?calc(m):null;return{k,name:by[k][1],f:a?a.f:0,ch:a?a.ch:by[k][4],med:r&&r.part!=null?Math.round(r.part*100)/100:null,ap:!!(r&&r.done&&r.acc>=m.meta-1e-9)}},
+ L=cs.map(info);let d=$("dEnd");if(d)d.remove();d=document.createElement("dialog");d.id="dEnd";
+ d.innerHTML=`<h2 style="margin-top:0">Encerrar semestre</h2><label class="sub">Nome do semestre<input type="text" id="enl" value="${lab}"></label><p class="sub">Marque as matérias em que você foi <b>aprovado</b>. Elas vão para Cursadas no fluxograma.</p>${L.map(i=>`<div class="fr"><label><input type="checkbox" data-k="${i.k}" ${i.ap?"checked":""}> ${esc(i.k)} ${esc(i.name)}</label></div>`).join("")||'<p class="sub">Nenhuma matéria em andamento.</p>'}<p class="sub" style="color:var(--r)"><b>Isto apaga:</b> provas, aulas, dias sem aula, faltas e notas do semestre. Faltas e notas ficam guardadas em "Semestres anteriores", e um backup é baixado antes.</p><label class="sub">Para confirmar, digite ENCERRAR<input type="text" id="enc" autocomplete="off"></label><div class="row" style="padding:12px 0 0"><button class="s" id="enx">Cancelar</button><button class="add" id="eng" disabled>Encerrar</button></div>`;
+ document.body.appendChild(d);d.showModal();
+ $("enc").oninput=()=>{$("eng").disabled=$("enc").value.trim().toUpperCase()!="ENCERRAR"};
+ $("enx").onclick=()=>d.close();
+ $("eng").onclick=()=>{const lb=$("enl").value.trim()||lab;
+  if(!confirm("Última confirmação: apagar provas, aulas, faltas e notas do semestre "+lb+"? Esta ação não pode ser desfeita (um backup será baixado)."))return;
+  const ok=new Set([...d.querySelectorAll("input[data-k]:checked")].map(x=>x.dataset.k));
+  bkDL();
+  ARQ.push({id:uid(),label:lb,date:iso(td()),items:L.map(i=>({name:i.k+" – "+i.name,f:i.f,ch:i.ch,med:i.med,ap:ok.has(i.k)}))});
+  try{localStorage.setItem(KAR,JSON.stringify(ARQ))}catch(e){}
+  ok.forEach(k=>done.add(k));save();CM={};saveCM();
+  EX=[];CL=[];SA=[];AB=[];NT=[];saveE();saveH();saveS();saveA();saveN();SIM=new Set();
+  d.close();renderAll();tab("o");alert("Semestre "+lb+" encerrado. Atualize as datas do novo semestre em Mais → Calendário acadêmico.")}}
+const _tab=tab;tab=function(v){_tab(v);$("v-hoje").hidden=v!="o";if(v=="o")renderO();$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
+try{const lt=localStorage.getItem("fluxo_tab")||"o";if(lt!="p"&&!/^#(sg|hi)=/.test(location.hash)){tab(lt);const sy=+localStorage.getItem("fluxo_scroll_"+lt)||0;setTimeout(()=>scrollTo(0,sy),50)}}catch(e){}
 addEventListener("scroll",()=>{try{const t=localStorage.getItem("fluxo_tab")||"p";localStorage.setItem("fluxo_scroll_"+t,String(scrollY))}catch(e){}},{passive:true});
 function icsDL(){
  const z=n=>String(n).padStart(2,"0"),stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",ymd=x=>x.replace(/-/g,""),cl=x=>String(x).replace(/[\n,;]/g," "),
@@ -996,6 +1035,7 @@ function renderX(){
  +card("SIMULADOR DE SEMESTRE",`<p class="sub" style="margin-top:0">Escolha as matérias que pretende cursar e veja o que elas liberam. Considero que você passa nas que está cursando agora.</p><div class="chs">${cand.map(c=>chip('data-s="'+c[0]+'"',esc(c[0]+" "+c[1].slice(0,20)),col(nz(c[0])),SIM.has(c[0]))).join("")||'<span class="sub">Nada disponível.</span>'}</div>${SIM.size?`<p class="sub"><b>${SIM.size} matérias • ${hs}h.</b> Libera depois: ${lib.length?lib.map(c=>esc(c[0]+" "+c[1])).join("; "):"nada novo"}</p>`:""}`)
  +card("CALENDÁRIO ACADÊMICO",`<div style="display:flex;gap:10px"><label style="flex:1">Início das aulas<input type="date" id="xi" value="${ACAD.ini}"></label><label style="flex:1">Fim das aulas<input type="date" id="xf" value="${ACAD.fim}"></label></div><div style="margin-top:8px">${ACAD.fer.map((f,i)=>`<div class="fr"><span>${fmt(f[0])} • ${esc(f[1])}</span><button class="s" data-fd="${i}">✕</button></div>`).join("")}</div><div style="display:flex;gap:6px;margin-top:8px"><input type="date" id="xfd" style="flex:1.3"><input id="fn2" placeholder="Feriado ou recesso" style="flex:2"><button class="s" data-fa="1">+</button></div><p class="sub">Feriados sugeridos para Salvador; confira no calendário da UFBA. Eles e os dias fora do semestre aparecem como sem aula.</p>`)
  +card("AGENDA E IMPORTAÇÃO",`<button class="s" data-a="ics" style="width:100%">📅 Exportar provas e aulas (.ics)</button><p class="sub">Abra o arquivo no celular para adicionar ao Google Agenda. Provas avisam 7 dias, 1 dia e 2h antes; aulas, 30 min antes. Exporte de novo quando mudar algo.</p><details><summary>Importar do SIGAA sem copiar e colar (computador)</summary><p class="sub">Copie o código, salve como favorito (cole no campo URL) e clique nele com o SIGAA aberto na página inicial.</p><textarea readonly>${esc(BM)}</textarea><button class="s" data-a="bm">Copiar código</button></details>`)
+ +card("SEMESTRE",`<button class="s" data-a="end" style="width:100%">🎓 Encerrar semestre…</button><p class="sub">Arquiva faltas e notas, passa as aprovadas para Cursadas e limpa provas, aulas, faltas e notas para o próximo semestre. Pede confirmação e baixa um backup antes.</p>${ARQ.length?`<details><summary>Semestres anteriores (${ARQ.length})</summary>${ARQ.slice().reverse().map(r=>`<p class="sub"><b>${esc(r.label)}</b><br>${r.items.map(i=>esc(i.name)+" • "+i.f+" faltas • média "+(i.med==null?"—":i.med)+" • "+(i.ap?"aprovado":"não aprovado")).join("<br>")}</p>`).join("")}</details>`:""}`)
  +card("APP E DADOS",`<div class="chs"><button class="s" data-a="inst">📲 Instalar</button><button class="s" data-a="th">🌓 Tema</button><button class="s" data-a="bk">⬇️ Backup</button><button class="s" data-a="rs">⬆️ Restaurar</button></div><input type="file" id="rsf" accept=".json" hidden>`)}
 $("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
  if(d.s){SIM.has(d.s)?SIM.delete(d.s):SIM.add(d.s)}
@@ -1005,7 +1045,8 @@ $("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b
  else if(d.a=="bm")return navigator.clipboard.writeText(b.previousElementSibling.value).then(()=>b.textContent="Copiado ✓");
  else if(d.a=="inst")return DIP?DIP.prompt():alert("No iPhone: Compartilhar → Adicionar à Tela de Início. No Android/Chrome: menu ⋮ → Instalar app.");
  else if(d.a=="th"){const t=document.documentElement.dataset.theme=="dark"?"light":"dark";document.documentElement.dataset.theme=t;tcol();try{localStorage.setItem("fluxo_theme",t)}catch(x){}return}
- else if(d.a=="bk"){const o={};[K,KC,KE,KA,KN,KH,KS,KHI,KAC].forEach(k=>o[k]=localStorage.getItem(k));const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(o)],{type:"application/json"}));a.download="meu-fluxograma-backup.json";a.click();return}
+ else if(d.a=="bk"){bkDL();return}
+ else if(d.a=="end")return openEnd();
  else if(d.a=="rs")return $("rsf").click();
  renderX()};
 $("v-ext").onchange=e=>{if(e.target.id=="xi"){ACAD.ini=e.target.value;saveAC()}else if(e.target.id=="xf"){ACAD.fim=e.target.value;saveAC()}else if(e.target.id=="rsf"){const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const o=JSON.parse(t);Object.keys(o).forEach(k=>{if(o[k]!=null)localStorage.setItem(k,o[k])});loadAll();renderAll();renderX();alert("Backup restaurado.")}catch(x){alert("Arquivo inválido.")}})}};
@@ -1017,9 +1058,9 @@ fixCH();
 /* ===== Sincronização (Firebase) ===== */
 function loadAll(){
  const g=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
- done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});COL=g("fluxo_cor_v1",{});MED=+g("fluxo_media_v1",5)||5;fixCH();ACAD={...ACAD,...g(KAC,{})};
+ done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});COL=g("fluxo_cor_v1",{});MED=+g("fluxo_media_v1",5)||5;ARQ=g("fluxo_arq_v1",[]);fixCH();ACAD={...ACAD,...g(KAC,{})};
 }
-function renderAll(){render();renderP();renderA();renderN();renderH()}
+function renderAll(){render();renderP();renderA();renderN();renderH();if(!$("v-hoje").hidden)renderO()}
 function syIcon(){const S=window.SYNC||{};return S.s=="on"?"☁️✓":S.s=="err"?"☁️⚠️":"☁️"}
 function syLabel(){const S=window.SYNC||{};return S.s=="on"?"☁️ Sincronizado • "+S.email:S.s=="out"?"☁️ Entrar para sincronizar":S.s=="err"?"☁️ Erro de sincronização":"☁️ Sincronização: não configurada"}
 function syncUI(){
@@ -1035,7 +1076,7 @@ $("syn").onclick=()=>SYNC.now();
 $("syx").onclick=()=>SYNC.logout();
 $("syz").onclick=()=>$("dsy").close();
 (function(){
- const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1","fluxo_cor_v1","fluxo_media_v1"];
+ const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1","fluxo_cor_v1","fluxo_media_v1","fluxo_arq_v1"];
  const ST=window.SYNC={s:CFG?"out":"nocfg",email:"",msg:""},upd=()=>syncUI();
  function mg(b,l,r,pr){
   let B,L,R;try{B=JSON.parse(b||"null")||[];L=JSON.parse(l);R=JSON.parse(r)}catch(e){return null}
