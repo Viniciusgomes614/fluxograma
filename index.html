@@ -450,6 +450,10 @@ const C=[];let SEM=0;
 RAW.trim().split("\n").forEach(l=>{if(l[0]=="#"){SEM=+l.slice(1);return}const[a,b,c,d]=l.split(";");C.push([a,b,SEM,d?d.split(" "):[],+c])});
 const DEF=[];
 const K="fluxo_done_v2",$=id=>document.getElementById(id);
+const KAC="fluxo_acad_v1";
+let ACAD={ini:"2026-08-19",fim:"2026-12-19",fer:[["2026-10-12","Nossa Sra. Aparecida"],["2026-11-02","Finados"],["2026-11-20","Consciência Negra"],["2026-12-08","Dia da Cidade (Salvador)"]]};
+try{ACAD={...ACAD,...JSON.parse(localStorage.getItem(KAC)||"{}")}}catch(e){}
+const saveAC=()=>{try{localStorage.setItem(KAC,JSON.stringify(ACAD))}catch(e){}};
 const AL={ECOB40:"ECO151",ENGN95:"ENGC56",MATA45:"MAT45"};
 const nz=s=>{s=s.replace(/([A-Z]+)0+(?=\d)/g,"$1");return AL[s]||s};
 const by=Object.fromEntries(C.map(c=>[c[0],c]));
@@ -921,14 +925,12 @@ $("sgc").onclick=()=>{
 };
 render();renderP();renderA();renderN();renderH();tab("p");
 
-const KAC="fluxo_acad_v1";
-let ACAD={ini:"2026-08-19",fim:"2026-12-19",fer:[["2026-10-12","Nossa Sra. Aparecida"],["2026-11-02","Finados"],["2026-11-20","Consciência Negra"],["2026-12-08","Dia da Cidade (Salvador)"]]};
-try{ACAD={...ACAD,...JSON.parse(localStorage.getItem(KAC)||"{}")}}catch(e){}
-const saveAC=()=>{try{localStorage.setItem(KAC,JSON.stringify(ACAD))}catch(e){}};
 let SIM=new Set(),DIP=null;
 addEventListener("beforeinstallprompt",e=>{e.preventDefault();DIP=e});
 try{const th=localStorage.getItem("fluxo_theme");if(th)document.documentElement.dataset.theme=th}catch(e){}
-const _tab=tab;tab=function(v){_tab(v);$("v-ext").hidden=v!="x";if(v=="x")renderX()};
+const _tab=tab;tab=function(v){_tab(v);$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
+try{const lt=localStorage.getItem("fluxo_tab");if(lt&&lt!="p"&&!/^#(sg|hi)=/.test(location.hash)){tab(lt);const sy=+localStorage.getItem("fluxo_scroll_"+lt)||0;setTimeout(()=>scrollTo(0,sy),50)}}catch(e){}
+addEventListener("scroll",()=>{try{const t=localStorage.getItem("fluxo_tab")||"p";localStorage.setItem("fluxo_scroll_"+t,String(scrollY))}catch(e){}},{passive:true});
 function icsDL(){
  const z=n=>String(n).padStart(2,"0"),stamp=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",ymd=x=>x.replace(/-/g,""),cl=x=>String(x).replace(/[\n,;]/g," "),
  al=t=>["BEGIN:VALARM","ACTION:DISPLAY","DESCRIPTION:Lembrete","TRIGGER:"+t,"END:VALARM"],L=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Meu Fluxograma//PT","CALSCALE:GREGORIAN"],t6=s=>s.replace(":","")+"00";
