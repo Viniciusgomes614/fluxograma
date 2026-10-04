@@ -455,6 +455,16 @@ const KAC="fluxo_acad_v1";
 let ACAD={ini:"2026-08-19",fim:"2026-12-19",fer:[["2026-10-12","Nossa Sra. Aparecida"],["2026-11-02","Finados"],["2026-11-20","Consciência Negra"],["2026-12-08","Dia da Cidade (Salvador)"]]};
 try{ACAD={...ACAD,...JSON.parse(localStorage.getItem(KAC)||"{}")}}catch(e){}
 const saveAC=()=>{try{localStorage.setItem(KAC,JSON.stringify(ACAD))}catch(e){}};
+const HUES=[215,8,145,38,275,175,330,60,25,190,100,300];
+let COL={},fm=null,grp=false;
+try{COL=JSON.parse(localStorage.getItem("fluxo_cor_v1")||"{}")}catch(e){}
+function ck(d){const m=String(d).match(/^([A-Z]{3,5}\d{2,4})/);if(m)return nz(m[1]);const c=C.find(k=>nn(k[1])==nn(d));return c?nz(c[0]):nn(d)}
+function col(k){if(COL[k]==null){const u=new Set(Object.values(COL));let i=0;while(u.has(i)&&i<11)i++;COL[k]=u.size>=12?Object.keys(COL).length%12:i;try{localStorage.setItem("fluxo_cor_v1",JSON.stringify(COL))}catch(e){}}return "hsl("+HUES[COL[k]]+" 62% 46%)"}
+const mc=d=>col(ck(d));
+function chipsP(){const ks=[...new Set(EX.map(e=>ck(e.disc)))];if(fm&&!ks.includes(fm))fm=null;if(ks.length<2&&!fm)return"";
+ const nm=k=>{const e=EX.find(x=>ck(x.disc)==k);return e?e.disc.split(" – ")[0].slice(0,14):k},
+ ch=(a,l,c,on)=>`<button ${a} style="min-height:0;padding:5px 11px;border-radius:16px;border:1px solid ${c||"var(--xb)"};background:${on?(c||"var(--fg)"):"var(--card)"};color:${on?(c?"#fff":"var(--bg)"):"var(--fg)"};font:inherit;font-size:12.5px;white-space:nowrap;flex:none">${l}</button>`;
+ return `<div style="display:flex;gap:6px;overflow-x:auto;padding:0 14px 8px">${ch('data-fm=""',"Todas","",!fm)}${ks.map(k=>ch('data-fm="'+k+'"',esc(nm(k)),col(k),fm==k)).join("")}${ch('data-gr="1"',grp?"☰ Lista":"▤ Agrupar","",false)}</div>`}
 const AL={ECOB40:"ECO151",ENGN95:"ENGC56",MATA45:"MAT45"};
 const nz=s=>{s=s.replace(/([A-Z]+)0+(?=\d)/g,"$1");return AL[s]||s};
 const by=Object.fromEntries(C.map(c=>[c[0],c]));
@@ -568,25 +578,28 @@ const fmt=s=>{const d=pd(s);return WD[d.getDay()]+", "+String(d.getDate()).padSt
 const dd=s=>Math.round((pd(s)-td())/864e5);
 const rel=s=>{const n=dd(s);return n==0?"hoje":n==1?"amanhã":n>1?"em "+n+" dias":"há "+(-n)+(n==-1?" dia":" dias")};
 const srt=(a,b)=>(a.date+(a.time||"")).localeCompare(b.date+(b.time||""));
-const item=e=>{const n=dd(e.date);return `<button class="ev${n>=0&&n<=3?" u":""}" data-e="${e.id}"><div><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}${e.note?" • "+esc(e.note):""}</span></div><em>${rel(e.date)}</em></button>`};
+const item=e=>{const n=dd(e.date);return `<button class="ev${n>=0&&n<=3?" u":""}" data-e="${e.id}" style="border-left-color:${mc(e.disc)}"><div><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}${e.note?" • "+esc(e.note):""}</span></div><em>${rel(e.date)}</em></button>`};
 $("dl").innerHTML=C.map(c=>`<option value="${c[0]} – ${c[1]}">`).join("");
 function renderP(){
- const t=iso(td()),up=EX.filter(e=>e.date>=t).sort(srt),pa=EX.filter(e=>e.date<t).sort(srt).reverse();
+ const t=iso(td()),X0=EX.filter(e=>!fm||ck(e.disc)==fm),up=X0.filter(e=>e.date>=t).sort(srt),pa=X0.filter(e=>e.date<t).sort(srt).reverse();
  let h=`<div class="top"><h1>Provas</h1><div class="tb"><button class="ic" id="sy">${syIcon()}</button><button class="add" id="ad">+ Adicionar</button></div></div>`;
- if(up[0]){const e=up[0];h+=`<div class="next sm" data-e="${e.id}"><div><small>PRÓXIMA PROVA</small><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}</span></div><em>${rel(e.date)}</em></div>`}
+ h+=chipsP();
+ if(up[0]){const e=up[0];h+=`<div class="next sm" data-e="${e.id}" style="box-shadow:inset 6px 0 0 ${mc(e.disc)}"><div><small>PRÓXIMA PROVA</small><b>${esc(e.disc)}</b><span>${fmt(e.date)}${e.time?" • "+e.time:""}</span></div><em>${rel(e.date)}</em></div>`}
  else h+=`<p class="sub" style="padding:0 14px;margin:0 0 6px">Nenhuma prova futura. Toque em "+ Adicionar".</p>`;
  const y=cal.getFullYear(),m=cal.getMonth(),f=new Date(y,m,1).getDay(),n=new Date(y,m+1,0).getDate();
  let g="";for(let i=0;i<f;i++)g+="<i></i>";
- for(let d=1;d<=n;d++){const s=iso(new Date(y,m,d)),c=EX.filter(e=>e.date==s).length;
-  g+=`<button class="day${s==t?" t":""}${s==sel?" s":""}" data-d="${s}">${d}${c?`<u>${"●".repeat(Math.min(c,3))}</u>`:""}</button>`}
+ for(let d=1;d<=n;d++){const s=iso(new Date(y,m,d)),cl=X0.filter(e=>e.date==s),c=cl.length;
+  g+=`<button class="day${s==t?" t":""}${s==sel?" s":""}" data-d="${s}">${d}${c?`<u>${cl.slice(0,3).map(e=>`<span style="color:${mc(e.disc)}">●</span>`).join("")}</u>`:""}</button>`}
  h+=`<div class="cal" style="margin-top:10px"><div class="ch"><button id="pm">‹</button><b>${MN[m]} ${y}</b><button id="nm">›</button></div><div class="wd">${WD.map(w=>`<span>${w[0].toUpperCase()}</span>`).join("")}</div><div class="dg">${g}</div></div>`;
- if(sel){const l=EX.filter(e=>e.date==sel).sort(srt);h+=`<h2>${fmt(sel).toUpperCase()}</h2><div class="list">${l.length?l.map(item).join(""):'<p class="sub" style="margin:0">Sem provas neste dia.</p>'}</div>`}
- if(up.length>1)h+=`<h2>DEPOIS</h2><div class="list">${up.slice(1).map(item).join("")}</div>`;
+ if(sel){const l=X0.filter(e=>e.date==sel).sort(srt);h+=`<h2>${fmt(sel).toUpperCase()}</h2><div class="list">${l.length?l.map(item).join(""):'<p class="sub" style="margin:0">Sem provas neste dia.</p>'}</div>`}
+ if(up.length>1){if(grp){[...new Set(up.map(e=>ck(e.disc)))].forEach(k=>{const l=up.filter(e=>ck(e.disc)==k);h+=`<h2><span style="color:${col(k)}">●</span> ${esc(l[0].disc.toUpperCase())} • ${l.length}</h2><div class="list">${l.map(item).join("")}</div>`})}else h+=`<h2>DEPOIS</h2><div class="list">${up.slice(1).map(item).join("")}</div>`}
  if(pa.length)h+=`<h2>ANTERIORES</h2><div class="list past">${pa.map(item).join("")}</div>`;
  $("v-prov").innerHTML=h;
 }
 $("v-prov").onclick=e=>{
  const t=e.target;
+ const fc=t.closest("[data-fm]");if(fc){fm=fc.dataset.fm||null;return renderP()}
+ if(t.closest("[data-gr]")){grp=!grp;return renderP()}
  if(t.closest("#sy"))return openSY();
  if(t.closest("#ad"))return openE();
  if(t.closest("#pm")){cal=new Date(cal.getFullYear(),cal.getMonth()-1,1);return renderP()}
@@ -744,7 +757,7 @@ const hue=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h};
 const bgc=n=>`hsl(${hue(n)} 55% 42%)`;
 const mins=t=>{const[h,i]=t.split(":").map(Number);return h*60+i};
 const dayCl=d=>CL.filter(c=>c.days.includes(d.getDay())).sort((a,b)=>a.start.localeCompare(b.start));
-const clBtn=(c,s)=>{const x=off(c,s);return `<button class="cl${x?" off":""}" data-o="${c.id}|${s}"><time>${c.start}<br>${c.end}</time><div><b>${esc(c.name)}</b><span>${[c.room&&esc(c.room),x&&"Sem aula"+(x.reason?" — "+esc(x.reason):"")].filter(Boolean).join(" • ")}</span></div></button>`};
+const clBtn=(c,s)=>{const x=off(c,s);return `<button class="cl${x?" off":""}"${x?"":` style="border-left-color:${mc(c.name)}"`} data-o="${c.id}|${s}"><time>${c.start}<br>${c.end}</time><div><b>${esc(c.name)}</b><span>${[c.room&&esc(c.room),x&&"Sem aula"+(x.reason?" — "+esc(x.reason):"")].filter(Boolean).join(" • ")}</span></div></button>`};
 function weekH(t){
  const nd=CL.some(c=>c.days.includes(0))?7:6;
  let a=CL.length?Math.floor(Math.min(...CL.map(c=>mins(c.start)))/60):7,b=CL.length?Math.ceil(Math.max(...CL.map(c=>mins(c.end)))/60):18;
@@ -978,7 +991,7 @@ fixCH();
 /* ===== Sincronização (Firebase) ===== */
 function loadAll(){
  const g=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
- done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});fixCH();ACAD={...ACAD,...g(KAC,{})};
+ done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});COL=g("fluxo_cor_v1",{});fixCH();ACAD={...ACAD,...g(KAC,{})};
 }
 function renderAll(){render();renderP();renderA();renderN();renderH()}
 function syIcon(){const S=window.SYNC||{};return S.s=="on"?"☁️✓":S.s=="err"?"☁️⚠️":"☁️"}
@@ -996,7 +1009,7 @@ $("syn").onclick=()=>SYNC.now();
 $("syx").onclick=()=>SYNC.logout();
 $("syz").onclick=()=>$("dsy").close();
 (function(){
- const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1"];
+ const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1","fluxo_cor_v1"];
  const ST=window.SYNC={s:CFG?"out":"nocfg",email:"",msg:""},upd=()=>syncUI();
  function mg(b,l,r,pr){
   let B,L,R;try{B=JSON.parse(b||"null")||[];L=JSON.parse(l);R=JSON.parse(r)}catch(e){return null}
