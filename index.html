@@ -209,7 +209,7 @@ nav button,.row button,dialog button,.ev{min-height:44px}#v-ext{padding-bottom:9
 <div class="sub" id="ps"></div>
 <div class="sub">Toque numa matéria para ver detalhes e marcar. Roxo: cursando agora. Verde-água: liberada se você passar nas que cursa. As cores abaixo filtram a lista.</div>
 </header>
-<div class="row"><button class="s" id="imp">Importar histórico do SIGAA</button><button class="s" id="rst">Limpar marcações</button></div>
+<div class="row"><button class="s" id="imp" style="display:none">Importar histórico do SIGAA</button><button class="s" id="rst">Limpar marcações</button></div>
 <div class="tabs" id="tabs"></div>
 <main id="main"></main>
 </section>
@@ -453,13 +453,22 @@ ENGL76;Comunicações Ópticas: Dispositivos e Sistemas;60;
 ENGL77;Eletromagnetismo Computacional;60;ENGC34
 ENGM92;Introdução às Práticas de Automação Industrial;60;ENGC33
 LETE46;Libras - Língua Brasileira de Sinais;30;`;
+let CURSO=null;try{CURSO=JSON.parse(localStorage.getItem("fluxo_curso_v1")||"null")}catch(e){}
+const legacyNow=()=>{try{return ["fluxo_done_v2","fluxo_exams_v1","fluxo_aulas_v1","fluxo_abs_v1","fluxo_notes_v1"].some(k=>{const v=localStorage.getItem(k);return v&&v!="[]"&&v!="{}"})}catch(e){return false}};
+if(!CURSO&&legacyNow()){CURSO={m:"eletrica"};try{localStorage.setItem("fluxo_curso_v1",JSON.stringify(CURSO))}catch(e){}}
 const C=[];let SEM=0;
-RAW.trim().split("\n").forEach(l=>{if(l[0]=="#"){SEM=+l.slice(1);return}const[a,b,c,d]=l.split(";");C.push([a,b,SEM,d?d.split(" "):[],+c])});
+function loadC(){C.length=0;
+ if(CURSO&&CURSO.m=="eletrica"){SEM=0;RAW.trim().split("\n").forEach(l=>{if(l[0]=="#"){SEM=+l.slice(1);return}const[a,b,c,d]=l.split(";");C.push([a,b,SEM,d?d.split(" "):[],+c])})}
+ else if(CURSO&&CURSO.m=="custom")(CURSO.l||[]).forEach(r=>C.push(r));
+ for(const k in by)delete by[k];C.forEach(c=>by[c[0]]=c);
+ const dl=document.getElementById("dl");if(dl)dl.innerHTML=C.filter(c=>c[2]<=12).map(c=>`<option value="${c[0]} – ${c[1]}">`).join("")}
 const DEF=[];
 const K="fluxo_done_v2",$=id=>document.getElementById(id);
 const KAC="fluxo_acad_v1";
-let ACAD={ini:"2026-08-19",fim:"2026-12-19",fer:[["2026-10-12","Nossa Sra. Aparecida"],["2026-11-02","Finados"],["2026-11-20","Consciência Negra"],["2026-12-08","Dia da Cidade (Salvador)"]]};
+const ACAD_EL={ini:"2026-08-19",fim:"2026-12-19",fer:[["2026-10-12","Nossa Sra. Aparecida"],["2026-11-02","Finados"],["2026-11-20","Consciência Negra"],["2026-12-08","Dia da Cidade (Salvador)"]]};
+let ACAD={ini:"",fim:"",fer:[]};
 try{ACAD={...ACAD,...JSON.parse(localStorage.getItem(KAC)||"{}")}}catch(e){}
+if(!localStorage.getItem(KAC)&&CURSO&&CURSO.m=="eletrica"){ACAD={...ACAD_EL};try{localStorage.setItem(KAC,JSON.stringify(ACAD))}catch(e){}}
 const saveAC=()=>{try{localStorage.setItem(KAC,JSON.stringify(ACAD))}catch(e){}};
 const HUES=[215,8,145,38,275,175,330,60,25,190,100,300];
 let COL={},fm=null,grp=false,MED=+(localStorage.getItem("fluxo_media_v1")||5)||5;
@@ -473,7 +482,7 @@ function chipsP(){const ks=[...new Set(EX.map(e=>ck(e.disc)))];if(fm&&!ks.includ
  return `<div style="display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 10px">${ch('data-fm=""',"Todas","",!fm)}${ks.map(k=>ch('data-fm="'+k+'"',esc(nm(k)),col(k),fm==k)).join("")}${ch('data-gr="1"',grp?"☰ Lista":"▤ Agrupar","",false)}</div>`}
 const AL={ECOB40:"ECO151",ENGN95:"ENGC56",MATA45:"MAT45"};
 const nz=s=>{s=s.replace(/([A-Z]+)0+(?=\d)/g,"$1");return AL[s]||s};
-const by=Object.fromEntries(C.map(c=>[c[0],c]));
+const by={};loadC();
 let done=new Set(DEF),flt="all";
 try{const s=localStorage.getItem(K);if(s)done=new Set(JSON.parse(s))}catch(e){}
 const save=()=>{try{localStorage.setItem(K,JSON.stringify([...done]))}catch(e){}};
@@ -489,21 +498,21 @@ const st=c=>{if(done.has(c[0]))return"d";if(CURS.has(c[0]))return"u";const m=mis
 const LAY=[["d","Cursadas","--g"],["u","Cursando","--p"],["n","Próximas","--t"],["a","Posso cursar","--b"],["b","Bloqueadas","--x"],["o","Optativas","--e"]];
 function render(){
  CURS=curs();
- const G=C.filter(c=>c[2]<=10),n=G.filter(c=>done.has(c[0])).length,cnt={},hd=G.filter(c=>done.has(c[0])&&!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0),ht=G.filter(c=>!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0);
+ const G=C.filter(c=>c[2]<=10||c[2]==12),n=G.filter(c=>done.has(c[0])).length,cnt={},hd=G.filter(c=>done.has(c[0])&&!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0),ht=G.filter(c=>!/^OPT/.test(c[0])).reduce((a,c)=>a+c[4],0);
  G.forEach(c=>{const k=st(c);cnt[k]=(cnt[k]||0)+1});cnt.o=C.length-G.length;
  $("pb").style.width=(100*hd/ht)+"%";
  $("ps").textContent=G.filter(c=>done.has(c[0])&&!/^OPT/.test(c[0])).length+" de "+G.filter(c=>!/^OPT/.test(c[0])).length+" obrigatórias • "+hd+"h de "+ht+"h • "+(cnt.u||0)+" cursando agora";
  $("tabs").innerHTML=LAY.map(l=>`<button data-v="${l[0]}" class="${VIS[l[0]]?"":"off"}"><i style="background:var(${l[2]})"></i>${l[1]} ${cnt[l[0]]||0}</button>`).join("");
  let h="";
- for(let s=1;s<=11;s++){
+ for(const s of [1,2,3,4,5,6,7,8,9,10,12,11]){
   if(s==11&&!VIS.o)continue;
   const all=C.filter(c=>c[2]==s),sh=all.filter(c=>VIS[st(c)]);
   if(!sh.length)continue;
-  h+=`<h2>${s==11?"OPTATIVAS":s+"º SEMESTRE"} • ${all.filter(c=>done.has(c[0])).length}/${all.length}</h2><div class="grid">`+sh.map(c=>{
+  h+=`<h2>${s==11?"OPTATIVAS":s==12?"PENDENTES":s+"º SEMESTRE"} • ${all.filter(c=>done.has(c[0])).length}/${all.length}</h2><div class="grid">`+sh.map(c=>{
    const m=miss(c);
    return `<button class="c ${st(c)}" data-c="${c[0]}"><b>${c[0]}</b><span>${c[1]}</span>${m.length?`<small>${m.join(", ")}</small>`:""}</button>`}).join("")+"</div>";
  }
- $("main").innerHTML=h||'<p class="sub" style="padding:14px">Nenhuma matéria visível. Ative alguma cor acima.</p>';
+ $("main").innerHTML=h||(C.length?'<p class="sub" style="padding:14px">Nenhuma matéria visível. Ative alguma cor acima.</p>':'<p class="sub" style="padding:14px">O fluxograma do seu curso está vazio. Em Mais → Importar do SIGAA, importe o histórico escolar para montá-lo.</p>');
 }
 $("tabs").onclick=e=>{const b=e.target.closest("[data-v]");if(!b)return;const k=b.dataset.v;VIS[k]=VIS[k]?0:1;try{localStorage.setItem(KV,JSON.stringify(VIS))}catch(x){}render()};
 $("main").onclick=e=>{
@@ -526,6 +535,16 @@ try{HIST=JSON.parse(localStorage.getItem(KHI)||"{}")}catch(e){}
 const saveHI=()=>{try{localStorage.setItem(KHI,JSON.stringify(HIST))}catch(e){}};
 const SITN={APR:"Aprovado",REP:"Reprovado",REPF:"Reprovado por falta",REPMF:"Reprovado por média e falta",TRANC:"Trancado",MATR:"Matriculado",CANC:"Cancelado",DISP:"Dispensado",CUMP:"Cumpriu",INCORP:"Incorporado",TRANS:"Transferido"};
 const OKS=["APR","CUMP","DISP","INCORP"];
+const tc=n=>n.toLowerCase().replace(/(^|[\s(-])\S/g,m=>m.toUpperCase()).replace(/\s(De|Da|Do|Das|Dos|E|Em|Para|Com|A|O)(?=\s)/g,m=>m.toLowerCase()).replace(/\b(Ii|Iii|Iv|Vi|Vii|Viii|Ix|Xi)\b/g,m=>m.toUpperCase());
+function parseNames(raw){const m={},ln=raw.split(/\r?\n/).map(x=>x.trim()),TP="(?:(?:OB|OP|EB|EP|LV|EC)\\s+)?";
+ ln.forEach((l,i)=>{let a=l.match(new RegExp("^(\\d{4}\\.\\d)\\s+"+TP+"([A-Za-z]{2,5}\\d{2,4}[A-Za-z]?)\\s+(.+?)\\s+\\d+\\s+(?:\\d+(?:[.,]\\d+)?|--)\\s+[A-Z]{3,5}$"));
+  if(a){m[a[2].toUpperCase()]=a[3];return}
+  a=l.match(/^(\d{4}\.\d)\s+(.+)$/);const c=(ln[i+1]||"").match(new RegExp("\\(\\d+h\\)\\s+"+TP+"([A-Z]{2,5}\\d{2,4}[A-Z]?)\\s+\\d+\\s"));if(a&&c)m[c[1]]=a[2]});return m}
+function customAdd(raw,t,L,idx,cut){
+ const nm=parseNames(raw),add=(c,n,s,h)=>{if(idx[nz(c)])return;const r=[c,tc(n||c),s,[],h||60];CURSO.l.push(r);C.push(r);by[c]=r;idx[nz(c)]=c};
+ if(cut>0)[...t.slice(cut).matchAll(/([A-Z]{2,5}\d{2,4}[A-Z]?) (.+?) (?:MATRICULADO )?(\d+) H(?= |$)/g)].forEach(x=>add(x[1],x[2],12,+x[3]));
+ const ss=[...new Set(L.map(x=>x.s))].sort();
+ L.forEach(x=>{if(OKS.includes(x.t))add(x.c,nm[x.c],Math.min(ss.indexOf(x.s)+1,10),x.h)})}
 function parseHist(txt){
  const idx={};C.forEach(c=>idx[nz(c[0])]=c[0]);
  const res=code=>{let k=nz(code);if(idx[k])return idx[k];k=nz(code.replace(/[A-Z]$/,""));return idx[k]||null};
@@ -534,8 +553,9 @@ function parseHist(txt){
  const SIT="(APR|REPMF|REPF|REP|TRANC|MATR|CANC|DISP|CUMP|INCORP|TRANS)",NO="(\\d+(?:[.,]\\d+)?|--)",TP="(?:(?:OB|OP|EB|EP|LV|EC) )?";
  const reA=new RegExp("(\\d{4}\\.\\d) ([^()]{0,170}?)\\((\\d+)H\\) "+TP+"([A-Z]{2,5}\\d{2,4}[A-Z]?) (\\d+) "+NO+" "+SIT+"\\b","g");
  const reB=new RegExp("(\\d{4}\\.\\d) "+TP+"([A-Z]{2,5}\\d{2,4}[A-Z]?) [^()]{0,170}?(\\d+) "+NO+" "+SIT+"\\b","g");
- const ra=[...rows.matchAll(reA)].map(x=>({s:x[1],c:x[4],n:x[6],t:x[7]})),rb=[...rows.matchAll(reB)].map(x=>({s:x[1],c:x[2],n:x[4],t:x[5]}));
+ const ra=[...rows.matchAll(reA)].map(x=>({s:x[1],c:x[4],n:x[6],t:x[7],h:+x[5]})),rb=[...rows.matchAll(reB)].map(x=>({s:x[1],c:x[2],n:x[4],t:x[5],h:+x[3]}));
  const L=rb.length>ra.length?rb:ra;
+ if(CURSO&&CURSO.m=="custom")customAdd(txt,t,L,idx,cut);
  const PART={FISD36:"FIS121",FISD42:"FIS121",FISD34:"FIS122",FISD41:"FIS122",FISD37:"FIS123",FISD40:"FIS123",FISD38:"FIS124",FISD39:"FIS124"};
  const H={},unk=new Set(),pok=new Set();let n=0;
  L.forEach(x=>{
@@ -560,7 +580,7 @@ $("go").onclick=()=>{
  });
  r.eq.forEach(c=>nd.add(c));
  done=nd;CM={};Object.keys(nc).forEach(c=>{if(!done.has(c))CM[c]=1});
- HIST=r.H;
+ HIST=r.H;if(CURSO&&CURSO.m=="custom")try{localStorage.setItem("fluxo_curso_v1",JSON.stringify(CURSO))}catch(e){}
  save();saveCM();saveHI();render();
  let ap=0,rp=0,tr=0,mt=0;
  Object.values(r.H).forEach(l=>l.forEach(x=>{if(OKS.includes(x.t))ap++;else if(/^REP/.test(x.t))rp++;else if(x.t=="TRANC")tr++;else if(x.t=="MATR")mt++}));
@@ -568,7 +588,7 @@ $("go").onclick=()=>{
 };
 $("pdf").onchange=async e=>{const f=e.target.files[0];if(!f)return;$("ir").textContent="Lendo PDF…";
  try{if(!window.pdfjsLib){await new Promise((r,j)=>{const x=document.createElement("script");x.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";x.onload=r;x.onerror=j;document.head.appendChild(x)});pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"}
- const p=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let t="";for(let i=1;i<=p.numPages;i++){const c=await(await p.getPage(i)).getTextContent();t+=c.items.map(x=>x.str).join(" ")+"\n"}
+ const p=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;let t="";for(let i=1;i<=p.numPages;i++){const c=await(await p.getPage(i)).getTextContent();let y=null;c.items.forEach(x=>{const yy=Math.round(x.transform[5]);t+=(y!==null&&Math.abs(yy-y)>3?"\n":" ")+x.str;y=yy});t+="\n"}
  $("ta").value=t;$("go").click()}catch(x){$("ir").textContent="Não consegui ler o PDF. Copie o texto dele e cole abaixo."}};
 $("rst").onclick=()=>{if(confirm("Desmarcar todas as matérias cursadas e as marcadas como cursando?")){done=new Set(DEF);CM={};save();saveCM();render()}};
 const KE="fluxo_exams_v1";
@@ -720,6 +740,8 @@ function renderN(){
 }
 $("v-not").onclick=e=>{
  if(e.target.closest("#nmed")){const v=num(prompt("Média para passar em todas as matérias (padrão da UFBA: 5):",cm(MED)));if(v==null||v<0||v>10)return;MED=v;try{localStorage.setItem("fluxo_media_v1",String(v))}catch(x){}NT.forEach(m=>m.meta=v);try{localStorage.setItem(KN,JSON.stringify(NT))}catch(x){}return renderN()}
+ if(e.target.closest("#unl"))return unlock();
+ if(e.target.closest("#unp"))return unlockPin();
  {const w=e.target.closest("[data-sw]");if(w){tab(w.dataset.sw);return}}
  if(e.target.closest("#na"))return openN();
  let b=e.target.closest("[data-ne]");if(b)return openN(b.dataset.ne);
@@ -774,7 +796,7 @@ const mon=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate()-((d.getDay()+6)%7
 const p2=n=>String(n).padStart(2,"0");
 const addm=(t,m)=>{const[h,i]=t.split(":").map(Number),x=h*60+i+m;return p2(Math.floor(x/60)%24)+":"+p2(x%60)};
 const off=(c,date)=>SA.find(x=>x.date==date&&(x.name=="*"||x.name==c.name))||offAC(date);
-function offAC(d){if(d<ACAD.ini||d>ACAD.fim)return{reason:"Fora do semestre"};const f=ACAD.fer.find(x=>x[0]==d);return f?{reason:f[1]}:null}
+function offAC(d){if(ACAD.ini&&ACAD.fim&&(d<ACAD.ini||d>ACAD.fim))return{reason:"Fora do semestre"};const f=ACAD.fer.find(x=>x[0]==d);return f?{reason:f[1]}:null}
 const cap=i=>WD[i][0].toUpperCase()+WD[i].slice(1);
 const dnames=d=>[...d].sort((a,b)=>(a+6)%7-(b+6)%7).map(cap).join(", ");
 const sh=d=>p2(d.getDate())+"/"+p2(d.getMonth()+1);
@@ -839,7 +861,7 @@ function renderH(){
  }
  const up=SA.filter(x=>x.date>=t).sort((a,b)=>a.date.localeCompare(b.date)),vs=szAll?up:up.slice(0,3);
  h+=`<h2>DIAS SEM AULA</h2>`+(up.length?`<div class="lc">${vs.map(x=>{const d=pd(x.date);return `<button class="ev2" data-z="${x.id}"><div class="dt" style="color:var(--r)"><small>${WA[d.getDay()]}</small><b>${d.getDate()}</b><small>${MA[d.getMonth()]}</small></div><div class="tx"><b>${esc(x.reason||"Sem aula")}</b><span>${x.name=="*"?"Todas as matérias":esc(nmOf(x.name))}</span></div><em>${rel(x.date)}</em></button>`}).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhum cadastrado.</p>`)+`<div class="row" style="padding:8px 14px 0">${up.length>3?`<button class="s" id="zall">${szAll?"Mostrar menos":"Ver todos ("+up.length+")"}</button>`:""}<button class="s" id="za">+ Sem aula</button></div>`;
- h+=`<h2>MINHAS AULAS</h2>`+(CL.length?`<div class="lc">${CL.map(c=>`<button class="ev2" data-c="${c.id}"><div style="width:14px;flex:none"><span class="dd" style="background:${mc(c.name)};width:10px;height:10px"></span></div><div class="tx"><b>${esc(nmOf(c.name))}</b><span>${[esc(cdOf(c.name)),dnames(c.days)+" • "+c.start+"–"+c.end,c.room&&esc(c.room)].filter(Boolean).join(" • ")}</span></div></button>`).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhuma aula cadastrada.</p>`)+`<div class="row" style="padding:10px 14px 0"><button class="s" id="sg">⬇ Importar do SIGAA (turmas do semestre)</button></div>`;
+ h+=`<h2>MINHAS AULAS</h2>`+(CL.length?`<div class="lc">${CL.map(c=>`<button class="ev2" data-c="${c.id}"><div style="width:14px;flex:none"><span class="dd" style="background:${mc(c.name)};width:10px;height:10px"></span></div><div class="tx"><b>${esc(nmOf(c.name))}</b><span>${[esc(cdOf(c.name)),dnames(c.days)+" • "+c.start+"–"+c.end,c.room&&esc(c.room)].filter(Boolean).join(" • ")}</span></div></button>`).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhuma aula cadastrada.</p>`)+``;
  $("v-hor").innerHTML=h;
 }
 $("v-hor").onclick=e=>{
@@ -986,18 +1008,22 @@ function toggleFalta(cid,s){const c=CL.find(x=>x.id==cid);if(!c)return;const k=c
  a.ds=a.ds||[];const key=s+"|"+c.start,i=a.ds.indexOf(key);
  if(i>=0){a.ds.splice(i,1);a.f=Math.max(0,a.f-1)}else{a.ds.push(key);a.f++}
  saveA();renderA()}
+function setCurso(m){CURSO=m=="eletrica"?{m:"eletrica"}:{m:"custom",l:[]};try{localStorage.setItem("fluxo_curso_v1",JSON.stringify(CURSO))}catch(e){}
+ if(m=="eletrica"&&!ACAD.ini){ACAD={...ACAD_EL};saveAC()}loadC();renderAll();renderO()}
 function renderO(){
+ if(!CURSO||CURSO.m=="none"){$("v-hoje").innerHTML=`<div class="top"><h1>Bem-vindo</h1></div><div class="bx"><p style="margin-top:0">Escolha como começar:</p><button class="add" data-curso="eletrica" style="width:100%;margin-bottom:8px">Engenharia Elétrica (UFBA, currículo G20251)</button><button class="s" data-curso="custom" style="width:100%">Outro curso, começar em branco</button><p class="sub">Em "Outro curso", importe o histórico do SIGAA (Mais → Importar do SIGAA) para montar o fluxograma. Aulas, provas, faltas e notas funcionam em qualquer curso.</p></div>`;return}
  const d=td(),t=iso(d),l=dayCl(d),up=EX.filter(e=>e.date>=t).sort(srt).slice(0,3),
  al=AB.filter(a=>{const L=lim(a.ch);return L&&L-a.f<=1}).map(a=>{const L=lim(a.ch),m=L-a.f;return `<div class="fr"><span><b>${esc(nmOf(a.name))}</b></span><span style="color:var(--r)">${m<0?"passou do limite":m==0?"no limite":"pode faltar só mais 1"} (${a.f}/${L})</span></div>`}).join("");
- $("v-hoje").innerHTML=`<div class="top"><h1>Hoje</h1><span class="sub" style="margin:0">${WD[d.getDay()]}, ${sh(d)}</span></div><h2>AULAS</h2>`+(l.length?`<div class="lc">${l.map(c=>clBtn(c,t)).join("")}</div>`:`<p class="sub" style="padding:0 14px;margin:0">Sem aulas hoje.</p>`)
+ $("v-hoje").innerHTML=`<div class="top"><h1>Hoje</h1><span class="sub" style="margin:0">${WD[d.getDay()]}, ${sh(d)}</span></div><h2>AULAS</h2>`+(l.length?`<div class="lc">${l.map(c=>clBtn(c,t)).join("")}</div>`:(CL.length?`<p class="sub" style="padding:0 14px;margin:0">Sem aulas hoje.</p>`:`<div class="bx"><p class="sub" style="margin-top:0">Nenhuma aula cadastrada ainda.</p><button class="s" data-go="x">📥 Importar do SIGAA</button></div>`))
  +`<h2>PRÓXIMAS PROVAS</h2>`+(up.length?`<div class="lc">${up.map(item).join("")}</div><div class="row" style="padding:8px 14px 0"><button class="s" data-go="p">Ver todas as provas</button></div>`:`<p class="sub" style="padding:0 14px;margin:0">Nenhuma prova cadastrada.</p>`)
  +(al?`<h2>ATENÇÃO COM FALTAS</h2><div class="bx">${al}</div>`:"")}
 $("v-hoje").onclick=e=>{const q=x=>e.target.closest(x);let b;
  if(b=q("[data-fl]")){const[i,d]=b.dataset.fl.split("|");toggleFalta(i,d);return renderO()}
+ if(b=q("[data-curso]"))return setCurso(b.dataset.curso);
  if(b=q("[data-e]"))return openE(b.dataset.e);
  if(b=q("[data-go]")){tab(b.dataset.go);scrollTo(0,0)}};
 function openEnd(){
- const y=ACAD.ini.slice(0,4),lab=y+(+ACAD.ini.slice(5,7)<=6?".1":".2"),cs=[...CURS].filter(k=>by[k]),
+ const bz=ACAD.ini||iso(td()),y=bz.slice(0,4),lab=y+(+bz.slice(5,7)<=6?".1":".2"),cs=[...CURS].filter(k=>by[k]),
  info=k=>{const a=AB.find(x=>ck(x.name)==k),m=NT.find(x=>ck(x.name)==k),r=m?calc(m):null;return{k,name:by[k][1],f:a?a.f:0,ch:a?a.ch:by[k][4],med:r&&r.part!=null?Math.round(r.part*100)/100:null,ap:!!(r&&r.done&&r.acc>=m.meta-1e-9)}},
  L=cs.map(info);let d=$("dEnd");if(d)d.remove();d=document.createElement("dialog");d.id="dEnd";
  d.innerHTML=`<h2 style="margin-top:0">Encerrar semestre</h2><label class="sub">Nome do semestre<input type="text" id="enl" value="${lab}"></label><p class="sub">Marque as matérias em que você foi <b>aprovado</b>. Elas vão para Cursadas no fluxograma.</p>${L.map(i=>`<div class="fr"><label><input type="checkbox" data-k="${i.k}" ${i.ap?"checked":""}> ${esc(i.k)} ${esc(i.name)}</label></div>`).join("")||'<p class="sub">Nenhuma matéria em andamento.</p>'}<p class="sub" style="color:var(--r)"><b>Isto apaga:</b> provas, aulas, dias sem aula, faltas e notas do semestre. Faltas e notas ficam guardadas em "Semestres anteriores", e um backup é baixado antes.</p><label class="sub">Para confirmar, digite ENCERRAR<input type="text" id="enc" autocomplete="off"></label><div class="row" style="padding:12px 0 0"><button class="s" id="enx">Cancelar</button><button class="add" id="eng" disabled>Encerrar</button></div>`;
@@ -1013,7 +1039,38 @@ function openEnd(){
   ok.forEach(k=>done.add(k));save();CM={};saveCM();
   EX=[];CL=[];SA=[];AB=[];NT=[];saveE();saveH();saveS();saveA();saveN();SIM=new Set();
   d.close();renderAll();tab("o");alert("Semestre "+lb+" encerrado. Atualize as datas do novo semestre em Mais → Calendário acadêmico.")}}
-const _tab=tab;tab=function(v){_tab(v);document.querySelectorAll("nav button").forEach(b=>{const k=b.dataset.v;b.classList.toggle("on",k==v||(v=="a"&&k=="n")||(v=="f"&&k=="x"))});$("v-hoje").hidden=v!="o";if(v=="o")renderO();$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
+const KLK="fluxo_lock",KLS="fluxo_lock_v1",b64=u=>btoa(String.fromCharCode(...new Uint8Array(u))),ub=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
+let LK=null;try{LK=JSON.parse(localStorage.getItem(KLS)||"null")}catch(e){}
+const lockOn=()=>!!(LK&&LK.on),hasBio=()=>!!localStorage.getItem(KLK),saveLK=v=>{LK=v;localStorage.setItem(KLS,JSON.stringify(v))};
+let UNL=false;
+const lockHTML=()=>`<div class="top"><h1>Notas</h1></div><div class="bx" style="text-align:center"><div style="font-size:42px">🔒</div><p class="sub">As notas estão protegidas.</p><div class="row" style="justify-content:center">${hasBio()?'<button class="add" id="unl">Biometria</button>':""}<button class="${hasBio()?"s":"add"}" id="unp">Digitar PIN</button></div></div>`;
+const _rN=renderN;renderN=function(){if(lockOn()&&!UNL){$("v-not").innerHTML=lockHTML();return}_rN()};
+function askPin(t,again){return new Promise(res=>{let d=$("dPin");if(d)d.remove();d=document.createElement("dialog");d.id="dPin";d.style.cssText="max-width:90vw;width:320px;border:1px solid var(--xb);border-radius:14px;background:var(--card);color:var(--fg);padding:16px";
+ const inp=(id,p)=>`<input type="password" inputmode="numeric" maxlength="4" id="${id}" placeholder="${p}" autocomplete="off" style="width:100%;box-sizing:border-box;font:inherit;font-size:20px;letter-spacing:6px;text-align:center;padding:10px;margin-bottom:8px;border:1px solid var(--xb);border-radius:10px;background:var(--bg);color:var(--fg)">`;
+ d.innerHTML=`<h3 style="margin:0 0 10px">${t}</h3>${inp("pn1","••••")}${again?inp("pn2","repita"):""}<p class="sub" id="pne" style="color:var(--r);margin:0 0 8px"></p><div class="row"><button class="s" id="pnx">Cancelar</button><button class="add" id="pno">OK</button></div>`;
+ document.body.appendChild(d);d.showModal();$("pn1").focus();
+ const fin=v=>{d.close();d.remove();res(v)};d.addEventListener("cancel",e=>{e.preventDefault();fin(null)});
+ $("pnx").onclick=()=>fin(null);
+ $("pno").onclick=()=>{const a=$("pn1").value;if(!/^\d{4}$/.test(a)){$("pne").textContent="Digite 4 números.";return}if(again&&$("pn2").value!=a){$("pne").textContent="Os PINs não conferem.";return}fin(a)}})}
+async function hp(pin,salt){const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pin),"PBKDF2",false,["deriveBits"]);return b64(await crypto.subtle.deriveBits({name:"PBKDF2",salt:ub(salt),iterations:100000,hash:"SHA-256"},k,256))}
+async function bioOK(){try{return !!(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}}
+async function bioGet(){try{await navigator.credentials.get({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),allowCredentials:[{type:"public-key",id:ub(localStorage.getItem(KLK)),transports:["internal"]}],userVerification:"required",timeout:60000}});return true}catch(e){return false}}
+async function bioReg(){try{const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:"Meu Fluxograma"},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:"aluno",displayName:"Aluno"},pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}],authenticatorSelection:{authenticatorAttachment:"platform",userVerification:"required",residentKey:"discouraged"},timeout:60000}});localStorage.setItem(KLK,b64(c.rawId));return true}catch(e){return false}}
+async function pinCheck(){const p=await askPin("Digite o PIN");if(p==null)return false;if(await hp(p,LK.salt)==LK.hash)return true;alert("PIN incorreto.");return false}
+async function authAny(){if(hasBio()&&await bioGet())return true;return pinCheck()}
+async function opened(viaPin){UNL=true;renderN();if(viaPin&&!hasBio()&&await bioOK()&&confirm("Ativar a biometria também neste aparelho? Assim você não precisa digitar o PIN."))await bioReg()}
+async function unlock(){if(hasBio()){if(await bioGet())opened(false)}else if(await pinCheck())opened(true)}
+async function unlockPin(){if(await pinCheck())opened(true)}
+const newSalt=()=>b64(crypto.getRandomValues(new Uint8Array(16)));
+async function lockToggle(){
+ if(lockOn()){if(!(await authAny()))return;saveLK({on:false});UNL=false;renderN();renderX();return}
+ const p=await askPin("Crie um PIN de 4 dígitos",true);if(p==null)return;
+ const salt=newSalt();saveLK({on:true,salt,hash:await hp(p,salt)});UNL=true;
+ if(await bioOK())await bioReg();renderN();renderX();
+ alert("Proteção ativada em todos os seus aparelhos. Neste, vale "+(hasBio()?"biometria ou PIN.":"o PIN.")+" Nos outros, o app pedirá o PIN e oferecerá ativar a biometria.")}
+async function changePin(){if(!(await authAny()))return;const p=await askPin("Novo PIN de 4 dígitos",true);if(p==null)return;const salt=newSalt();saveLK({on:true,salt,hash:await hp(p,salt)});alert("PIN alterado em todos os aparelhos.")}
+document.addEventListener("visibilitychange",()=>{if(document.hidden){UNL=false;if(lockOn()&&!$("v-not").hidden)renderN()}});
+const _tab=tab;tab=function(v){if(v!="n"&&v!="a")UNL=false;const lk=v=="n"&&lockOn()&&!UNL;if(lk)renderN();_tab(v);if(lk)unlock();document.querySelectorAll("nav button").forEach(b=>{const k=b.dataset.v;b.classList.toggle("on",k==v||(v=="a"&&k=="n")||(v=="f"&&k=="x"))});$("v-hoje").hidden=v!="o";if(v=="o")renderO();$("v-ext").hidden=v!="x";if(v=="x")renderX();try{localStorage.setItem("fluxo_tab",v)}catch(e){}};
 try{const lt=localStorage.getItem("fluxo_tab")||"o";if(lt!="p"&&!/^#(sg|hi)=/.test(location.hash)){tab(lt);const sy=+localStorage.getItem("fluxo_scroll_"+lt)||0;setTimeout(()=>scrollTo(0,sy),50)}}catch(e){}
 addEventListener("scroll",()=>{try{const t=localStorage.getItem("fluxo_tab")||"p";localStorage.setItem("fluxo_scroll_"+t,String(scrollY))}catch(e){}},{passive:true});
 function icsDL(){
@@ -1023,24 +1080,25 @@ function icsDL(){
   if(e.time){const[h,i]=e.time.split(":").map(Number);L.push("DTSTART:"+ymd(e.date)+"T"+t6(e.time),"DTEND:"+ymd(e.date)+"T"+z((h+2)%24)+z(i)+"00",...al("-P7D"),...al("-P1D"),...al("-PT2H"))}
   else L.push("DTSTART;VALUE=DATE:"+ymd(e.date),"DTEND;VALUE=DATE:"+ymd(iso(new Date(pd(e.date).getTime()+864e5))),...al("-P7D"),...al("-PT15H"));
   if(e.note)L.push("DESCRIPTION:"+cl(e.note));L.push("END:VEVENT")});
- CL.forEach(c=>c.days.forEach(dw=>{let d=pd(ACAD.ini);while(d.getDay()!=dw)d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
+ (ACAD.ini&&ACAD.fim?CL:[]).forEach(c=>c.days.forEach(dw=>{let d=pd(ACAD.ini);while(d.getDay()!=dw)d=new Date(d.getFullYear(),d.getMonth(),d.getDate()+1);
   const ex=[...ACAD.fer.map(f=>f[0]),...SA.filter(x=>x.name=="*"||x.name==c.name).map(x=>x.date)].filter(x=>x>=ACAD.ini&&x<=ACAD.fim&&pd(x).getDay()==dw);
   L.push("BEGIN:VEVENT","UID:au-"+c.id+"-"+dw+"@fluxo","DTSTAMP:"+stamp,"SUMMARY:"+cl(c.name),"DTSTART:"+ymd(iso(d))+"T"+t6(c.start),"DTEND:"+ymd(iso(d))+"T"+t6(c.end),"RRULE:FREQ=WEEKLY;UNTIL="+ymd(ACAD.fim)+"T235959",...ex.map(x=>"EXDATE:"+ymd(x)+"T"+t6(c.start)));
   if(c.room)L.push("LOCATION:"+cl(c.room));L.push(...al("-PT30M"),"END:VEVENT")}));
  L.push("END:VCALENDAR");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([L.join("\r\n")],{type:"text/calendar"}));a.download="meu-fluxograma.ics";a.click()}
 function renderX(){
- const G=C.filter(c=>c[2]<=10),GO=G.filter(c=>!/^OPT/.test(c[0])),B=new Set([...done,...CURS]),ok=(c,S)=>!S.has(c[0])&&miss(c).every(p=>S.has(p)),cand=G.filter(c=>ok(c,B)),S2=new Set([...B,...SIM]),
+ const G=C.filter(c=>c[2]<=10||c[2]==12),GO=G.filter(c=>!/^OPT/.test(c[0])),B=new Set([...done,...CURS]),ok=(c,S)=>!S.has(c[0])&&miss(c).every(p=>S.has(p)),cand=G.filter(c=>ok(c,B)),S2=new Set([...B,...SIM]),
  lib=G.filter(c=>!S2.has(c[0])&&!ok(c,B)&&miss(c).every(p=>S2.has(p))),hs=[...SIM].reduce((a,k)=>a+(by[k]?by[k][4]:0),0),ex=c=>/estágio|conclusão|enade/i.test(c[1]),
  bar=(t,g)=>{const a=g.filter(c=>done.has(c[0])).reduce((s,c)=>s+c[4],0),b=g.reduce((s,c)=>s+c[4],0);return `<div class="sub" style="margin:10px 0 4px">${t}: ${a}h de ${b}h (${Math.round(100*a/b)}%)</div><div style="height:8px;background:var(--xb);border-radius:6px"><div style="height:8px;width:${100*a/b}%;background:var(--g,#2f9e6b);border-radius:6px"></div></div>`},
  U=location.origin+location.pathname,BM="javascript:(function(){var t=document.body.innerText,k=/Componentes Curriculares/i.test(t)?'hi':'sg';window.open('"+U+"#'+k+'='+btoa(unescape(encodeURIComponent(t))))})()";
  const card=(t,x)=>`<h2>${t}</h2><div class="bx">${x}</div>`;
  $("v-ext").innerHTML=`<div class="top"><h1>Mais</h1></div>`
+ +card("IMPORTAR DO SIGAA",`<p class="sub" style="margin-top:0">Traga seus dados do SIGAA sem digitar nada. No SIGAA, aperte Ctrl + A na página, copie e cole aqui.</p><div class="chs"><button class="s" data-a="isg">📚 Turmas e provas</button><button class="s" data-a="ihi">🎓 Histórico escolar</button></div><p class="sub"><b>Turmas e provas:</b> página inicial do discente (traz horários, salas e avaliações).<br><b>Histórico:</b> emita o histórico escolar em PDF e envie o arquivo, ou cole o texto.</p><details><summary>Atalho para o computador (sem copiar e colar)</summary><p class="sub">Copie o código, salve como favorito (cole no campo URL) e clique nele com o SIGAA aberto na página inicial.</p><textarea readonly>${esc(BM)}</textarea><button class="s" data-a="bm">Copiar código</button></details>`)
  +card(`PROGRESSO<button class="lk" data-a="flux">Ver fluxograma ›</button>`,`${bar("Obrigatórias",GO)}${bar("Sem estágio e TCC",GO.filter(c=>!ex(c)))}${bar("Optativas",G.filter(c=>/^OPT/.test(c[0])))}<p class="sub">Carga horária conforme o currículo. Atividades complementares não entram.</p>`)
  +card("SIMULADOR DE SEMESTRE",`<p class="sub" style="margin-top:0">Escolha as matérias que pretende cursar e veja o que elas liberam. Considero que você passa nas que está cursando agora.</p><div class="chs">${cand.map(c=>chip('data-s="'+c[0]+'"',esc(c[0]+" "+c[1].slice(0,20)),col(nz(c[0])),SIM.has(c[0]))).join("")||'<span class="sub">Nada disponível.</span>'}</div>${SIM.size?`<p class="sub"><b>${SIM.size} matérias • ${hs}h.</b> Libera depois: ${lib.length?lib.map(c=>esc(c[0]+" "+c[1])).join("; "):"nada novo"}</p>`:""}`)
  +card("CALENDÁRIO ACADÊMICO",`<div style="display:flex;gap:10px"><label style="flex:1">Início das aulas<input type="date" id="xi" value="${ACAD.ini}"></label><label style="flex:1">Fim das aulas<input type="date" id="xf" value="${ACAD.fim}"></label></div><div style="margin-top:8px">${ACAD.fer.map((f,i)=>`<div class="fr"><span>${fmt(f[0])} • ${esc(f[1])}</span><button class="s" data-fd="${i}">✕</button></div>`).join("")}</div><div style="display:flex;gap:6px;margin-top:8px"><input type="date" id="xfd" style="flex:1.3"><input id="fn2" placeholder="Feriado ou recesso" style="flex:2"><button class="s" data-fa="1">+</button></div><p class="sub">Feriados sugeridos para Salvador; confira no calendário da UFBA. Eles e os dias fora do semestre aparecem como sem aula.</p>`)
- +card("AGENDA E IMPORTAÇÃO",`<button class="s" data-a="ics" style="width:100%">📅 Exportar provas e aulas (.ics)</button><p class="sub">Abra o arquivo no celular para adicionar ao Google Agenda. Provas avisam 7 dias, 1 dia e 2h antes; aulas, 30 min antes. Exporte de novo quando mudar algo.</p><details><summary>Importar do SIGAA sem copiar e colar (computador)</summary><p class="sub">Copie o código, salve como favorito (cole no campo URL) e clique nele com o SIGAA aberto na página inicial.</p><textarea readonly>${esc(BM)}</textarea><button class="s" data-a="bm">Copiar código</button></details>`)
- +card("SEMESTRE",`<button class="s" data-a="end" style="width:100%">🎓 Encerrar semestre…</button><p class="sub">Arquiva faltas e notas, passa as aprovadas para Cursadas e limpa provas, aulas, faltas e notas para o próximo semestre. Pede confirmação e baixa um backup antes.</p>${ARQ.length?`<details><summary>Semestres anteriores (${ARQ.length})</summary>${ARQ.slice().reverse().map(r=>`<p class="sub"><b>${esc(r.label)}</b><br>${r.items.map(i=>esc(i.name)+" • "+i.f+" faltas • média "+(i.med==null?"—":i.med)+" • "+(i.ap?"aprovado":"não aprovado")).join("<br>")}</p>`).join("")}</details>`:""}`)
- +card("APP E DADOS",`<div class="chs"><button class="s" data-a="inst">📲 Instalar</button><button class="s" data-a="th">🌓 Tema</button><button class="s" data-a="bk">⬇️ Backup</button><button class="s" data-a="rs">⬆️ Restaurar</button></div><input type="file" id="rsf" accept=".json" hidden>`)}
+ +card("AGENDA",`<button class="s" data-a="ics" style="width:100%">📅 Exportar provas e aulas (.ics)</button><p class="sub">Abra o arquivo no celular para adicionar ao Google Agenda. Provas avisam 7 dias, 1 dia e 2h antes; aulas, 30 min antes. Exporte de novo quando mudar algo.</p>`)
+ +card("SEMESTRE",`<button class="s" data-a="end" style="width:100%">🎓 Encerrar semestre…</button><p class="sub">Arquiva faltas e notas, passa as aprovadas para Cursadas e limpa provas, aulas, faltas e notas para o próximo semestre. Pede confirmação e baixa um backup antes.</p>${ARQ.length&&(!lockOn()||UNL)?`<details><summary>Semestres anteriores (${ARQ.length})</summary>${ARQ.slice().reverse().map(r=>`<p class="sub"><b>${esc(r.label)}</b><br>${r.items.map(i=>esc(i.name)+" • "+i.f+" faltas • média "+(i.med==null?"—":i.med)+" • "+(i.ap?"aprovado":"não aprovado")).join("<br>")}</p>`).join("")}</details>`:""}`)
+ +card("APP E DADOS",`<div class="chs"><button class="s" data-a="lock">${lockOn()?"🔓 Desativar proteção das Notas":"🔒 Proteger Notas (biometria ou PIN)"}</button>${lockOn()?'<button class="s" data-a="pin">🔑 Trocar PIN</button>':""}<button class="s" data-a="curso">🔄 Trocar de curso</button><button class="s" data-a="inst">📲 Instalar</button><button class="s" data-a="th">🌓 Tema</button><button class="s" data-a="bk">⬇️ Backup</button><button class="s" data-a="rs">⬆️ Restaurar</button></div><input type="file" id="rsf" accept=".json" hidden>`)}
 $("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b.dataset;
  if(d.s){SIM.has(d.s)?SIM.delete(d.s):SIM.add(d.s)}
  else if(d.fd){ACAD.fer.splice(+d.fd,1);saveAC()}
@@ -1051,6 +1109,11 @@ $("v-ext").onclick=e=>{const b=e.target.closest("button");if(!b)return;const d=b
  else if(d.a=="th"){const t=document.documentElement.dataset.theme=="dark"?"light":"dark";document.documentElement.dataset.theme=t;tcol();try{localStorage.setItem("fluxo_theme",t)}catch(x){}return}
  else if(d.a=="bk"){bkDL();return}
  else if(d.a=="end")return openEnd();
+ else if(d.a=="isg")return openSG();
+ else if(d.a=="ihi")return $("imp").click();
+ else if(d.a=="curso"){if(confirm("Trocar de curso apaga as marcações do fluxograma (matérias cursadas). Provas, aulas, faltas e notas não são apagadas. Continuar?")){done=new Set();save();CM={};saveCM();CURSO={m:"none"};try{localStorage.setItem("fluxo_curso_v1",JSON.stringify(CURSO))}catch(x){}loadC();renderAll();tab("o")}return}
+ else if(d.a=="lock"){lockToggle();return}
+ else if(d.a=="pin"){changePin();return}
  else if(d.a=="flux"){tab("f");scrollTo(0,0);return}
  else if(d.a=="rs")return $("rsf").click();
  renderX()};
@@ -1063,7 +1126,7 @@ fixCH();
 /* ===== Sincronização (Firebase) ===== */
 function loadAll(){
  const g=(k,d)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}};
- done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});COL=g("fluxo_cor_v1",{});MED=+g("fluxo_media_v1",5)||5;ARQ=g("fluxo_arq_v1",[]);fixCH();ACAD={...ACAD,...g(KAC,{})};
+ done=new Set(g(K,DEF));CM=g(KC,{});EX=g(KE,[]);AB=g(KA,[]);NT=g(KN,[]);CL=g(KH,[]);SA=g(KS,[]);HIST=g(KHI,{});COL=g("fluxo_cor_v1",{});MED=+g("fluxo_media_v1",5)||5;ARQ=g("fluxo_arq_v1",[]);LK=g("fluxo_lock_v1",null);CURSO=g("fluxo_curso_v1",null);if(!CURSO&&legacyNow()){CURSO={m:"eletrica"};try{localStorage.setItem("fluxo_curso_v1",JSON.stringify(CURSO))}catch(e){}}loadC();fixCH();ACAD={...ACAD,...g(KAC,{})};
 }
 function renderAll(){render();renderP();renderA();renderN();renderH();if(!$("v-hoje").hidden)renderO()}
 function syIcon(){const S=window.SYNC||{};return S.s=="on"?"☁️✓":S.s=="err"?"☁️⚠️":"☁️"}
@@ -1081,7 +1144,7 @@ $("syn").onclick=()=>SYNC.now();
 $("syx").onclick=()=>SYNC.logout();
 $("syz").onclick=()=>$("dsy").close();
 (function(){
- const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1","fluxo_cor_v1","fluxo_media_v1","fluxo_arq_v1"];
+ const CFG=window.FIREBASE_CONFIG,SK=["fluxo_done_v2","fluxo_cur_v1","fluxo_exams_v1","fluxo_abs_v1","fluxo_notes_v1","fluxo_aulas_v1","fluxo_semaula_v1","fluxo_hist_v1","fluxo_acad_v1","fluxo_cor_v1","fluxo_media_v1","fluxo_arq_v1","fluxo_lock_v1","fluxo_curso_v1"];
  const ST=window.SYNC={s:CFG?"out":"nocfg",email:"",msg:""},upd=()=>syncUI();
  function mg(b,l,r,pr){
   let B,L,R;try{B=JSON.parse(b||"null")||[];L=JSON.parse(l);R=JSON.parse(r)}catch(e){return null}
